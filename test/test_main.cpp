@@ -29,11 +29,19 @@
 
 #include <iostream>
 
+#include <glog/logging.h>
+
 #include "gtest/gtest.h"
 
-GTEST_API_ int main(int argc, char **argv) {
-  std::cout << "Running main() from test_main.cpp\n";
+GTEST_API_ int main(int argc, char **argv)
+{
+  google::InitGoogleLogging(argv[0]);
+  FLAGS_alsologtostderr = true;
+  FLAGS_colorlogtostderr = true;
 
   testing::InitGoogleTest(&argc, argv);
+
+  LOG(INFO) << "Running main() from test_main.cpp";
+
   return RUN_ALL_TESTS();
 }

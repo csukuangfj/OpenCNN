@@ -3,6 +3,7 @@
 
 set(CMAKE_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LINT_COMMAND ${CMAKE_SOURCE_DIR}/scripts/cpp_lint.py)
+set(LINT_OPTIONS "--filter=-whitespace/braces")
 set(SRC_FILE_EXTENSIONS h hpp hu c cpp cu cc)
 set(EXCLUDE_FILE_EXTENSTIONS pb.h pb.cc)
 set(LINT_DIRS include src)
@@ -23,12 +24,11 @@ foreach(ext ${EXCLUDE_FILE_EXTENSTIONS})
     set(EXCLUDED_FILES ${EXCLUDED_FILES} ${FOUND_FILES})
 endforeach()
 
-message(STATUS "files: ${LINT_SOURCES}")
 # exclude generated pb files
 # list(REMOVE_ITEM LINT_SOURCES ${EXCLUDED_FILES})
 
 execute_process(
-    COMMAND ${LINT_COMMAND} ${LINT_SOURCES}
+    COMMAND ${LINT_COMMAND} ${LINT_OPTIONS} ${LINT_SOURCES}
     ERROR_VARIABLE LINT_OUTPUT
     ERROR_STRIP_TRAILING_WHITESPACE
 )
