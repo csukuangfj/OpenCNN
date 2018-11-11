@@ -11,6 +11,11 @@ message ArrayProto
     repeated double d = 5;      // data
 }
 
+message NetworkProto
+{
+    repeated LayerProto layer_proto = 1;
+}
+
 enum LayerType
 {
     INPUT           = 0;        // input layer
@@ -24,8 +29,8 @@ message LayerProto
 
     optional ArrayProto param = 4;   // parameters for this layer
 
-    optional InputLayerProto input_param = 5;
-    optional FullConnectedLayerProto fc_param = 6;
+    optional InputLayerProto input_proto = 5;
+    optional FullConnectedLayerProto fc_proto = 6;
 }
 
 message InputLayerProto

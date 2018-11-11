@@ -21,7 +21,7 @@ TYPED_TEST(InputLayerTest, create)
     LayerProto proto;
     proto.set_type(INPUT);
 
-    auto param = proto.mutable_input_param();
+    auto param = proto.mutable_input_proto();
     param->set_n(2);
     param->set_c(3);
     param->set_h(4);

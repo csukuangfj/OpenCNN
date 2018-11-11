@@ -1,0 +1,8 @@
+
+layer_proto {
+    type: INPUT
+}
+
+layer_proto {
+    type: FULL_CONNECTED
+}

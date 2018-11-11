@@ -10,7 +10,7 @@ template<typename Dtype>
 InputLayer<Dtype>::InputLayer(const LayerProto& _proto)
     : Layer<Dtype>(_proto)
 {
-    const auto param = _proto.input_param();
+    const auto param = _proto.input_proto();
     n_ = param.n();
     c_ = param.c();
     h_ = param.h();

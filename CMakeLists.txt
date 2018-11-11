@@ -21,6 +21,7 @@ add_library(
     src/layer.cpp
     src/full_connected_layer.cpp
     src/input_layer.cpp
+    src/network.cpp
     )
 target_link_libraries(
     core

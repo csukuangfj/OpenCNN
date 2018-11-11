@@ -39,6 +39,7 @@ GTEST_API_ int main(int argc, char **argv)
   FLAGS_alsologtostderr = true;
   FLAGS_colorlogtostderr = true;
 
+  ::testing::GTEST_FLAG(filter) = "NetworkTest*";
   testing::InitGoogleTest(&argc, argv);
 
   LOG(INFO) << "Running main() from test_main.cpp";
