@@ -1,5 +1,7 @@
 #pragma once
 
+#include "proto/cnn.pb.h"
+
 namespace cnn
 {
 
@@ -36,6 +38,10 @@ class Array
     int total_;  //!< n_*c_*h_*w_, number of elements
 
     Dtype* d_;  //!< pointer to the data
+
+public:
+    void from_proto(const ArrayProto& proto);
+    void to_proto(ArrayProto* proto);
 };
 
 

@@ -125,5 +125,39 @@ TYPED_TEST(ArrayTest, operator_bracket)
     EXPECT_EQ(arr[100], 0);
 }
 
+TYPED_TEST(ArrayTest, proto)
+{
+    Array<TypeParam> arr;
+
+    arr.init(2, 3, 4, 5);
+    for (int i = 0; i < arr.total_; i++) arr.d_[i] = i;
+
+    ArrayProto proto;
+    arr.to_proto(&proto);
+
+    EXPECT_EQ(arr.n_, proto.n());
+    EXPECT_EQ(arr.c_, proto.c());
+    EXPECT_EQ(arr.h_, proto.h());
+    EXPECT_EQ(arr.w_, proto.w());
+    for (int i = 0; i < arr.total_; i++)
+    {
+        EXPECT_EQ(arr[i], proto.d(i));
+    }
+
+    Array<TypeParam> arr2;
+    arr2.from_proto(proto);
+
+    EXPECT_EQ(arr.n_, arr2.n_);
+    EXPECT_EQ(arr.c_, arr2.c_);
+    EXPECT_EQ(arr.h_, arr2.h_);
+    EXPECT_EQ(arr.w_, arr2.w_);
+    EXPECT_EQ(arr.total_, arr2.total_);
+
+    for (int i = 0; i < arr.total_; i++)
+    {
+        EXPECT_EQ(arr[i], arr2[i]);
+    }
+}
+
 }  // namespace cnn
 

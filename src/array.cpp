@@ -24,12 +24,24 @@ Array<Dtype>::~Array()
 template<typename Dtype>
 void Array<Dtype>::init(int n, int c, int h, int w)
 {
-    CHECK_GT(n, 0);
-    CHECK_GT(c, 0);
-    CHECK_GT(h, 0);
-    CHECK_GT(w, 0);
+    CHECK_GE(n, 0);
+    CHECK_GE(c, 0);
+    CHECK_GE(h, 0);
+    CHECK_GE(w, 0);
 
     int total = n*c*h*w;
+    if (total == 0)
+    {
+        if (d_)
+        {
+            delete[] d_;
+            d_ = nullptr;
+        }
+        n_ = c_ = h_ = w_ = 0;
+        total_ = 0;
+        return;
+    }
+
     if (total != total_)
     {
         if (d_) delete[] d_;
@@ -101,6 +113,31 @@ Dtype& Array<Dtype>::operator[](int i)
     return d_[i];
 }
 
+template<typename Dtype>
+void Array<Dtype>::from_proto(const ArrayProto& proto)
+{
+    init(proto.n(), proto.c(), proto.h(), proto.w());
+    for (int i = 0; i < total_; i++)
+    {
+        d_[i] = static_cast<Dtype>(proto.d(i));
+    }
+}
+
+template<typename Dtype>
+void Array<Dtype>::to_proto(ArrayProto* proto)
+{
+    proto->set_n(n_);
+    proto->set_c(c_);
+    proto->set_h(h_);
+    proto->set_w(w_);
+
+    proto->clear_d();
+
+    for (int i = 0; i < total_; i++)
+    {
+        proto->add_d(d_[i]);
+    }
+}
 
 template class Array<float>;
 template class Array<double>;
