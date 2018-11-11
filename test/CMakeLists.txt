@@ -9,6 +9,8 @@ add_executable(gtest
     test_layer.cpp
     test_input_layer.cpp
     test_network.cpp
+    test_array_math.cpp
+    test_l2_loss_layer.cpp
     )
 target_link_libraries(
     gtest

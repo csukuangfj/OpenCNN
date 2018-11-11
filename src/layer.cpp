@@ -2,6 +2,7 @@
 
 #include "cnn/full_connected_layer.hpp"
 #include "cnn/input_layer.hpp"
+#include "cnn/l2_loss_layer.hpp"
 #include "cnn/layer.hpp"
 
 namespace cnn
@@ -29,6 +30,9 @@ Layer<Dtype>::create(const LayerProto& _proto)
             break;
         case FULL_CONNECTED:
             res.reset(new FullConnectedLayer<Dtype>(_proto));
+            break;
+        case L2_LOSS:
+            res.reset(new L2LossLayer<Dtype>(_proto));
             break;
         default:
             LOG(FATAL) << "Unknown layer type: "

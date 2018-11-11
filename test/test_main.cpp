@@ -40,6 +40,9 @@ GTEST_API_ int main(int argc, char **argv)
   FLAGS_colorlogtostderr = true;
 
   ::testing::GTEST_FLAG(filter) = "NetworkTest*";
+  ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
+  ::testing::GTEST_FLAG(filter) = "LayerTest*";
+  ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
   testing::InitGoogleTest(&argc, argv);
 
   LOG(INFO) << "Running main() from test_main.cpp";

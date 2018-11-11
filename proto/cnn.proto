@@ -20,6 +20,7 @@ enum LayerType
 {
     INPUT           = 0;        // input layer
     FULL_CONNECTED  = 1;        // full connected layer
+    L2_LOSS         = 2;        // l2 loss layer, for regression only
 }
 message LayerProto
 {

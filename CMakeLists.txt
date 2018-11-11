@@ -22,6 +22,7 @@ add_library(
     src/full_connected_layer.cpp
     src/input_layer.cpp
     src/network.cpp
+    src/l2_loss_layer.cpp
     )
 target_link_libraries(
     core
