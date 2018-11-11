@@ -15,6 +15,14 @@ void set_seed(int val)
 }
 
 // refer to
+// http://www.cplusplus.com/reference/random/uniform_int_distribution/
+int uniform(int low, int high)
+{
+    std::uniform_int_distribution<int> distribution(low, high);
+    return distribution(g_generator);
+}
+
+// refer to
 // http://www.cplusplus.com/reference/random/normal_distribution/normal_distirbution/
 template<typename Dtype>
 void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev)

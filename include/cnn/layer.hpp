@@ -31,6 +31,27 @@ class Layer
     const std::vector<std::shared_ptr<Array<Dtype>>>& param() const
     {return param_;}
 
+    //! @todo disable gradient memory allocation in the test phase
+    std::vector<Array<Dtype>*> mutable_gradient()
+    {
+        std::vector<Array<Dtype>*> res;
+        for (int i = 0; i < gradient_.size(); i++)
+        {
+            res.push_back(gradient_[i].get());
+        }
+        return res;
+    }
+
+    std::vector<const Array<Dtype>*> get_gradient() const
+    {
+        std::vector<const Array<Dtype>*> res;
+        for (int i = 0; i < gradient_.size(); i++)
+        {
+            res.push_back(gradient_[i].get());
+        }
+        return res;
+    }
+
     /**
      * At layer construction, we have no idea of the shape of its inputs,
      * so this function MUST be called after constructing the whole network.

@@ -17,6 +17,7 @@ class Array
     Array& operator=(const Array<Dtype>&) = delete;
 
     void init(int n, int c, int h, int w);
+    void init_like(const Array<Dtype> &arr);
 
     /**
      * Return the element at n*c_*h_*w_ + c*h_*w_ + h*w_ + w,

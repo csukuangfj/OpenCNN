@@ -123,6 +123,15 @@ void Network<Dtype>::fprop()
 }
 
 template<typename Dtype>
+void Network<Dtype>::bprop()
+{
+    // layers_.back()->bprop({}, get_data_output(0));
+    for (int i = layers_.size() - 2; i >= 1; i--)
+    {
+    }
+}
+
+template<typename Dtype>
 void Network<Dtype>::add_data(
         const std::string& name,
         std::shared_ptr<Array<Dtype>> arr)

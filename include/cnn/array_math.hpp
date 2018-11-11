@@ -12,6 +12,16 @@ namespace cnn
 void set_seed(int val);
 
 /**
+ * Return a uniformly distributed random value in the given
+ * interval. Both ends are inclusive.
+ *
+ * @param low the lower bound, inclusive
+ * @param high the upper bound, inclusive
+ * @return a random value uniformly distributed in the interval [low, high].
+ */
+int uniform(int low, int high);
+
+/**
  *
  * compute
  *  (alpha*x[0]-beta*y[0])**2 + (alpha*x[1]-beta*y[1])**2

@@ -25,6 +25,13 @@ Array<Dtype>::~Array()
 }
 
 template<typename Dtype>
+void Array<Dtype>::init_like(const Array<Dtype> &arr)
+{
+    if (this == &arr) return;
+    init(arr.n_, arr.c_, arr.h_, arr.w_);
+}
+
+template<typename Dtype>
 void Array<Dtype>::init(int n, int c, int h, int w)
 {
     CHECK_GE(n, 0);
