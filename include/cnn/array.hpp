@@ -39,7 +39,7 @@ class Array
 
     Dtype* d_;  //!< pointer to the data
 
-public:
+ public:
     void from_proto(const ArrayProto& proto);
     void to_proto(ArrayProto* proto);
 };

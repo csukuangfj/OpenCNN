@@ -18,6 +18,9 @@ add_library(
     core STATIC
     src/array.cpp
     src/io.cpp
+    src/layer.cpp
+    src/full_connected_layer.cpp
+    src/input_layer.cpp
     )
 target_link_libraries(
     core

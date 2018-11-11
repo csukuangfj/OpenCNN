@@ -6,6 +6,8 @@ add_executable(gtest
     test_main.cpp
     test_array.cpp
     test_io.cpp
+    test_layer.cpp
+    test_input_layer.cpp
     )
 target_link_libraries(
     gtest
