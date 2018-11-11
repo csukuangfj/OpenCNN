@@ -1,5 +1,6 @@
 #include <glog/logging.h>
 
+#include <sstream>
 #include "cnn/array.hpp"
 
 namespace cnn
@@ -111,6 +112,17 @@ template<typename Dtype>
 Dtype& Array<Dtype>::operator[](int i)
 {
     return d_[i];
+}
+
+template<typename Dtype>
+std::string Array<Dtype>::shape_info() const
+{
+    std::ostringstream ss;
+    ss << n_ << ", "
+       << c_ << ", "
+       << h_ << ", "
+       << w_ << "\n";
+    return ss.str();
 }
 
 template<typename Dtype>

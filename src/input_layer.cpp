@@ -15,30 +15,27 @@ InputLayer<Dtype>::InputLayer(const LayerProto& _proto)
     c_ = param.c();
     h_ = param.h();
     w_ = param.w();
-    has_label_ = param.has_label();
 }
 
 template<typename Dtype>
 void InputLayer<Dtype>::reshape(
         const std::vector<const Array<Dtype>*>& /*input*/,
-        std::vector<Array<Dtype>*>* output)
+        const std::vector<Array<Dtype>*>& output)
 {
-    if (has_label_)
-    {
-        CHECK_EQ(output->size(), 2);
-    }
-    else    // NOLINT
-    {
-        CHECK_EQ(output->size(), 1);
-    }
+    CHECK((output.size() == 1) || (output.size() == 2));
 
-    output[0][0]->init(n_, c_, h_, w_);
+    output[0]->init(n_, c_, h_, w_);
+    if (output.size() == 2)
+    {
+        // resize the label
+        output[1]->init(n_, 1, 1, 1);
+    }
 }
 
 template<typename Dtype>
 void InputLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& input,
-        std::vector<Array<Dtype>*>* output)
+        const std::vector<Array<Dtype>*>& output)
 {
     LOG(INFO) << "fprop in input layer!";
 }
@@ -46,7 +43,6 @@ void InputLayer<Dtype>::fprop(
 
 template class InputLayer<float>;
 template class InputLayer<double>;
-
 
 }  // namespace cnn
 

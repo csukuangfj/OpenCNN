@@ -39,8 +39,6 @@ message InputLayerProto
     optional int32 c = 2;
     optional int32 h = 3;
     optional int32 w = 4;
-
-    optional bool has_label = 5 [default = false];
 }
 
 message FullConnectedLayerProto

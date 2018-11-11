@@ -35,7 +35,7 @@ TYPED_TEST(InputLayerTest, create)
 
     Array<TypeParam> arr;
     std::vector<Array<TypeParam>*> vec{&arr};
-    layer.reshape({}, &vec);
+    layer.reshape({}, vec);
 
     EXPECT_EQ(arr.n_, 2);
     EXPECT_EQ(arr.c_, 3);

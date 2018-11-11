@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "proto/cnn.pb.h"
 
 namespace cnn
@@ -31,6 +33,8 @@ class Array
     Dtype operator[](int i) const;
     Dtype& operator[](int i);
 
+    std::string shape_info() const;
+
     int n_;      //!< number of batches
     int c_;      //!< number of channels
     int h_;      //!< image height, i.e., number of rows
@@ -44,6 +48,4 @@ class Array
     void to_proto(ArrayProto* proto);
 };
 
-
 }  // namespace cnn
-

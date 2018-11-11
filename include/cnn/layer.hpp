@@ -31,21 +31,21 @@ class Layer
      */
     virtual void reshape(
             const std::vector<const Array<Dtype>*>& bottom,
-            std::vector<Array<Dtype>*>* top) = 0;
+            const std::vector<Array<Dtype>*>& top) = 0;
 
     /**
      * forward propagation
      */
     virtual void fprop(
             const std::vector<const Array<Dtype>*>& bottom,
-            std::vector<Array<Dtype>*>* top) = 0;
+            const std::vector<Array<Dtype>*>& top) = 0;
 
     /**
      * backward propagation
      */
     virtual void bprop(
             const std::vector<const Array<Dtype>*>& bottom,
-            std::vector<const Array<Dtype>*>* bottom_gradient,
+            const std::vector<Array<Dtype>*>& bottom_gradient,
             const std::vector<const Array<Dtype>*>& top,
             const std::vector<const Array<Dtype>*>& top_gradient) = 0;
  protected:

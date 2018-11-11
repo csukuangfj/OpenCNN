@@ -1,8 +1,21 @@
 
 layer_proto {
     type: INPUT
+    top: "data"
+    top: "label"
+    input_proto {
+        n: 20
+        c: 1
+        h: 1
+        w: 3
+    }
 }
 
 layer_proto {
     type: FULL_CONNECTED
+    bottom: "data"
+    top: "output"
+    fc_proto {
+        num_output: 1
+    }
 }

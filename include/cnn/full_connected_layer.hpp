@@ -14,17 +14,19 @@ class FullConnectedLayer : public Layer<Dtype>
 
     void reshape(
             const std::vector<const Array<Dtype>*>& bottom,
-            std::vector<Array<Dtype>*>* top) override;
+            const std::vector<Array<Dtype>*>& top) override;
 
     void fprop(
             const std::vector<const Array<Dtype>*>& input,
-            std::vector<Array<Dtype>*>* output) override;
+            const std::vector<Array<Dtype>*>& output) override;
 
     void bprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            std::vector<const Array<Dtype>*>* bottom_gradient,
-            const std::vector<const Array<Dtype>*>& top,
-            const std::vector<const Array<Dtype>*>& top_gradient) override;
+            const std::vector<const Array<Dtype>*>&,
+            const std::vector<Array<Dtype>*>&,
+            const std::vector<const Array<Dtype>*>&,
+            const std::vector<const Array<Dtype>*>&) override;
+ private:
+    int num_output_;
 };
 
 }  // namespace cnn
