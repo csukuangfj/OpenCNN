@@ -23,6 +23,7 @@ add_library(
     src/input_layer.cpp
     src/network.cpp
     src/l2_loss_layer.cpp
+    src/array_math.cpp
     )
 target_link_libraries(
     core

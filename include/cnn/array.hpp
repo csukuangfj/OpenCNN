@@ -23,14 +23,14 @@ class Array
      * i.e., (n*c_ + c)*h_*w_ + h*w_ + w,
      * i.e., ((n*c_ + c)*h_ + h)*w_ + w
      */
-    Dtype at(int n, int c, int h, int w) const;
+    const Dtype& at(int n, int c, int h, int w) const;
     Dtype& at(int n, int c, int h, int w);
 
     // no range check
-    Dtype operator()(int n, int c, int h, int w) const;
+    const Dtype& operator()(int n, int c, int h, int w) const;
     Dtype& operator()(int n, int c, int h, int w);
 
-    Dtype operator[](int i) const;
+    const Dtype& operator[](int i) const;
     Dtype& operator[](int i);
 
     std::string shape_info() const;

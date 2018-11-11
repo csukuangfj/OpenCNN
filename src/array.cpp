@@ -61,7 +61,7 @@ void Array<Dtype>::init(int n, int c, int h, int w)
 }
 
 template<typename Dtype>
-Dtype Array<Dtype>::at(int n, int c, int h, int w) const
+const Dtype& Array<Dtype>::at(int n, int c, int h, int w) const
 {
     CHECK_GE(n, 0);
     CHECK_LT(n, n_);
@@ -91,7 +91,7 @@ Dtype& Array<Dtype>::at(int n, int c, int h, int w)
 }
 
 template<typename Dtype>
-Dtype Array<Dtype>::operator()(int n, int c, int h, int w) const
+const Dtype& Array<Dtype>::operator()(int n, int c, int h, int w) const
 {
     int i = ((n*c_ + c)*h_ + h)*w_ + w;
     return d_[i];
@@ -105,7 +105,7 @@ Dtype& Array<Dtype>::operator()(int n, int c, int h, int w)
 }
 
 template<typename Dtype>
-Dtype Array<Dtype>::operator[](int i) const
+const Dtype& Array<Dtype>::operator[](int i) const
 {
     return d_[i];
 }

@@ -12,9 +12,15 @@ Layer<Dtype>::Layer(const LayerProto& _proto)
     : param_(),
       proto_(_proto)
 {
-    if (proto_.param().d_size())
+    if (proto_.param_size())
     {
-        param_.from_proto(proto_.param());
+        param_.resize(proto_.param_size());
+        for (int i = 0; i < proto_.param_size(); i++)
+        {
+            auto arr = std::make_shared<Array<Dtype>>();
+            arr->from_proto(proto_.param(i));
+            param_.push_back(arr);
+        }
     }
 }
 

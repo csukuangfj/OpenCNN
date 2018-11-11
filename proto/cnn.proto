@@ -24,14 +24,15 @@ enum LayerType
 }
 message LayerProto
 {
-    optional LayerType type     = 1;
-    repeated string bottom  = 2;    // bottom/top name are globally unique
-    repeated string top = 3;        // bottom/top name are globally unique
+    optional string name = 1;       // can be arbitrary and may be not unique, for debug only
+    optional LayerType type     = 2;
+    repeated string bottom  = 3;    // bottom/top name are globally unique
+    repeated string top = 4;        // bottom/top name are globally unique
 
-    optional ArrayProto param = 4;   // parameters for this layer
+    repeated ArrayProto param = 5;   // parameters for this layer
 
-    optional InputLayerProto input_proto = 5;
-    optional FullConnectedLayerProto fc_proto = 6;
+    optional InputLayerProto input_proto = 6;
+    optional FullConnectedLayerProto fc_proto = 7;
 }
 
 message InputLayerProto

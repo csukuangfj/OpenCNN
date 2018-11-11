@@ -1,10 +1,11 @@
 
 layer_proto {
+    name: "input"
     type: INPUT
     top: "data"
     top: "label"
     input_proto {
-        n: 20
+        n: 2
         c: 1
         h: 1
         w: 3
@@ -12,10 +13,19 @@ layer_proto {
 }
 
 layer_proto {
+    name: "fc1"
     type: FULL_CONNECTED
     bottom: "data"
-    top: "output"
+    top: "fc1"
     fc_proto {
         num_output: 1
     }
+}
+
+layer_proto {
+    name: "l2_loss"
+    type: L2_LOSS
+    bottom: "fc1"
+    bottom: "label"
+    top: "loss"
 }

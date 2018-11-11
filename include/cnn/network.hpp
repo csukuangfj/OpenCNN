@@ -32,6 +32,11 @@ class Network
      * the loss from the last loss layer.
      */
     Dtype compute_loss();
+
+    std::shared_ptr<Layer<Dtype>> layer(int i) const
+    {
+        return layers_[i];
+    }
  private:
     // add data to the map
     void add_data(const std::string& name,

@@ -56,6 +56,7 @@ void Network<Dtype>::init(const NetworkProto& _proto)
     CHECK_EQ(input_layer.bottom_size(), 0)
         << "Input layer should have no bottom!";
 
+    LOG(INFO) << "process layer: " << input_layer.name();
     // allocate space for the input
     for (int i = 0; i < input_layer.top_size(); i++)
     {
@@ -70,6 +71,7 @@ void Network<Dtype>::init(const NetworkProto& _proto)
     {
         // check its bottom has been created!
         const auto &layer_proto = proto_.layer_proto(i);
+        LOG(INFO) << "process layer " << layer_proto.name();
         for (int j = 0; j < layer_proto.bottom_size(); j++)
         {
             const auto &name = layer_proto.bottom(j);
@@ -103,6 +105,7 @@ void Network<Dtype>::reshape()
     layers_[0]->reshape({}, get_data_output(0));
     for (int i = 1; i < layers_.size(); i++)
     {
+        LOG(INFO) << "layer " << layers_[i]->proto().name() << " reshape()";
         layers_[i]->reshape(get_data_input(i), get_data_output(i));
     }
 }
@@ -110,6 +113,13 @@ void Network<Dtype>::reshape()
 template<typename Dtype>
 void Network<Dtype>::fprop()
 {
+    layers_[0]->fprop({}, get_data_output(0));
+    for (int i = 1; i < layers_.size(); i++)
+    {
+        layers_[i]->fprop(
+                get_data_input(i),
+                get_data_output(i));
+    }
 }
 
 template<typename Dtype>

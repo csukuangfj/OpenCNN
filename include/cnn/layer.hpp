@@ -25,6 +25,12 @@ class Layer
     const LayerProto& proto() const {return proto_;}
     LayerProto& proto() {return proto_;}
 
+    std::vector<std::shared_ptr<Array<Dtype>>>& param()
+    {return param_;}
+
+    const std::vector<std::shared_ptr<Array<Dtype>>>& param() const
+    {return param_;}
+
     /**
      * At layer construction, we have no idea of the shape of its inputs,
      * so this function MUST be called after constructing the whole network.
@@ -49,9 +55,9 @@ class Layer
             const std::vector<const Array<Dtype>*>& top,
             const std::vector<const Array<Dtype>*>& top_gradient) = 0;
  protected:
-    Array<Dtype> param_;
-    Array<Dtype> gradient_;
- private:
+    std::vector<std::shared_ptr<Array<Dtype>>> param_;
+    std::vector<std::shared_ptr<Array<Dtype>>> gradient_;
+
     LayerProto proto_;
 
  private:
