@@ -1,6 +1,8 @@
 #include <glog/logging.h>
 
 #include <sstream>
+#include <string>
+
 #include "cnn/array.hpp"
 
 namespace cnn

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "proto/cnn.pb.h"
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include "proto/cnn.pb.h"
 
 #include "cnn/array.hpp"
 #include "cnn/layer.hpp"

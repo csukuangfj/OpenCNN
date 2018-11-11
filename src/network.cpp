@@ -1,6 +1,9 @@
 
 #include <glog/logging.h>
 
+#include <string>
+#include <vector>
+
 #include "cnn/io.hpp"
 #include "cnn/network.hpp"
 
@@ -42,8 +45,8 @@ void Network<Dtype>::init(const NetworkProto& _proto)
 {
     proto_ = _proto;
     LOG(INFO) << "\n" << proto_.DebugString();
-    // a network MUST have at least two layers: an input layer and an output layer
-    //
+    // a network MUST have at least two
+    // layers: an input layer and an output layer
     CHECK_GE(proto_.layer_proto_size(), 2);
 
     const auto& input_layer = proto_.layer_proto(0);
@@ -107,7 +110,6 @@ void Network<Dtype>::reshape()
 template<typename Dtype>
 void Network<Dtype>::fprop()
 {
-
 }
 
 template<typename Dtype>
