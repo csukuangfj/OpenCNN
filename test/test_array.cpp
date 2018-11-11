@@ -125,6 +125,43 @@ TYPED_TEST(ArrayTest, operator_bracket)
     EXPECT_EQ(arr[100], 0);
 }
 
+TYPED_TEST(ArrayTest, operators)
+{
+    Array<TypeParam> arr;
+    arr.init(2, 3, 1, 5);
+
+    int i = 0;
+    for (int n = 0; n < 2; n++)
+    for (int c = 0; c < 3; c++)
+    for (int h = 0; h < 1; h++)
+    for (int w = 0; w < 5; w++)
+    {
+        arr(n, c, h, w) = i;
+        i++;
+    }
+
+    for (int k = 0; k < arr.total_; k++)
+    {
+        EXPECT_EQ(arr[k], k);
+    }
+
+    arr.init(5, 6, 7, 8);
+    for (int k = 0; k < arr.total_; k++)
+    {
+        arr[k] = k;
+    }
+
+    i = 0;
+    for (int n = 0; n < 5; n++)
+    for (int c = 0; c < 6; c++)
+    for (int h = 0; h < 7; h++)
+    for (int w = 0; w < 8; w++)
+    {
+        EXPECT_EQ(arr(n, c, h, w), i);
+        i++;
+    }
+}
+
 TYPED_TEST(ArrayTest, proto)
 {
     Array<TypeParam> arr;

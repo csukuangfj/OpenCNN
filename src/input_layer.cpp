@@ -27,7 +27,7 @@ void InputLayer<Dtype>::reshape(
     {
         CHECK_EQ(output->size(), 2);
     }
-    else
+    else    // NOLINT
     {
         CHECK_EQ(output->size(), 1);
     }
