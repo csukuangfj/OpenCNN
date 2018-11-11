@@ -5,6 +5,7 @@ add_subdirectory(gtest)
 add_executable(gtest
     test_main.cpp
     test_array.cpp
+    test_io.cpp
     )
 target_link_libraries(
     gtest

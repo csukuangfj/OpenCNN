@@ -1,0 +1,12 @@
+syntax = "proto2";
+
+package cnn;
+
+message ArrayProto
+{
+    optional int32 n = 1;       // number of batches
+    optional int32 c = 2;       // number of channels
+    optional int32 h = 3;       // number of rows, i.e., height
+    optional int32 w = 4;       // number of columns, i.e., width
+    repeated double d = 5;      // data
+}
