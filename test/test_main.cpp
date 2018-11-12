@@ -39,13 +39,16 @@ GTEST_API_ int main(int argc, char **argv)
   FLAGS_alsologtostderr = true;
   FLAGS_colorlogtostderr = true;
 
-  // ::testing::GTEST_FLAG(filter) = "NetworkTest*";
-  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
-  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
   // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
-  // ::testing::GTEST_FLAG(filter) = "LayerTest*";
   // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
   // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*bprop*";
+  // ::testing::GTEST_FLAG(filter) = "LayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
+  // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
+
+
   testing::InitGoogleTest(&argc, argv);
 
   LOG(INFO) << "Running main() from test_main.cpp";

@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include "cnn/array.hpp"
 
@@ -65,6 +66,29 @@ void Array<Dtype>::init(int n, int c, int h, int w)
     h_ = h;
     w_ = w;
     total_ = total;
+}
+
+template<typename Dtype>
+bool Array<Dtype>::has_same_shape(const Array<Dtype> &arr) const
+{
+    bool res;
+    res = (total_ == arr.total_) && (n_ == arr.n_)
+        && (c_ == arr.c_)
+        && (h_ == arr.h_)
+        && (w_ == arr.w_);
+    return res;
+}
+
+template<typename Dtype>
+bool Array<Dtype>::has_same_shape(const std::vector<int>& vec) const
+{
+    bool res;
+    res = (vec.size() == 4)
+        && (vec[0] == n_)
+        && (vec[1] == c_)
+        && (vec[2] == h_)
+        && (vec[3] == w_);
+    return res;
 }
 
 template<typename Dtype>

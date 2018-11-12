@@ -62,6 +62,10 @@ void Network<Dtype>::init(const NetworkProto& _proto)
     {
         auto d = std::make_shared<Array<Dtype>>();
         add_data(input_layer.top(i), d);
+
+        // add it for convenience; it is never referenced
+        auto g = std::make_shared<Array<Dtype>>();
+        add_gradient(input_layer.top(i), g);
     }
 
     layers_.push_back(Layer<Dtype>::create(input_layer));
@@ -85,6 +89,9 @@ void Network<Dtype>::init(const NetworkProto& _proto)
         {
             auto d = std::make_shared<Array<Dtype>>();
             add_data(layer_proto.top(j), d);
+
+            auto g = std::make_shared<Array<Dtype>>();
+            add_gradient(layer_proto.top(j), g);
         }
 
         layers_.push_back(Layer<Dtype>::create(layer_proto));
@@ -98,36 +105,59 @@ void Network<Dtype>::reshape()
     static bool init = false;
     if (false)
     {
-        LOG(FATAL) << "reshape() should only be called once!";
+        LOG(FATAL) << "reshape() should be called only once!";
     }
     init = true;
 
-    layers_[0]->reshape({}, get_data_output(0));
+    layers_[0]->reshape({}, {}, get_data_top_mutable(0), {});
     for (int i = 1; i < layers_.size(); i++)
     {
         LOG(INFO) << "layer " << layers_[i]->proto().name() << " reshape()";
-        layers_[i]->reshape(get_data_input(i), get_data_output(i));
+        layers_[i]->reshape(
+                get_data_bottom(i),
+                get_gradient_bottom_mutable(i),
+                get_data_top_mutable(i),
+                get_gradient_top_mutable(i));
     }
 }
 
 template<typename Dtype>
 void Network<Dtype>::fprop()
 {
-    layers_[0]->fprop({}, get_data_output(0));
+    layers_[0]->fprop({}, get_data_top_mutable(0));
     for (int i = 1; i < layers_.size(); i++)
     {
         layers_[i]->fprop(
-                get_data_input(i),
-                get_data_output(i));
+                get_data_bottom(i),
+                get_data_top_mutable(i));
     }
 }
 
 template<typename Dtype>
 void Network<Dtype>::bprop()
 {
-    // layers_.back()->bprop({}, get_data_output(0));
+    for (int i = 0; i < layers_.size(); i++)
+    {
+        layers_[i]->clear_gradient();
+    }
+
+    for (auto &g : gradient_)
+    {
+        set_to<Dtype>(g.second.get(), 0);
+    }
+
+    layers_.back()->bprop(
+            get_data_bottom(layers_.size() - 1),
+            get_gradient_bottom_mutable(layers_.size() - 1),
+            get_data_top(0),
+            {});
     for (int i = layers_.size() - 2; i >= 1; i--)
     {
+        layers_[i]->bprop(
+                get_data_bottom(i),
+                get_gradient_bottom_mutable(i),
+                get_data_top(i),
+                get_gradient_top(i));
     }
 }
 
@@ -143,8 +173,19 @@ void Network<Dtype>::add_data(
 }
 
 template<typename Dtype>
+void Network<Dtype>::add_gradient(
+        const std::string& name,
+        std::shared_ptr<Array<Dtype>> arr)
+{
+    CHECK_EQ(gradient_.count(name), 0)
+        << "duplicate name " << name;
+    gradient_[name] = arr;
+    LOG(INFO) << "add gradient: " << name;
+}
+
+template<typename Dtype>
 std::vector<const Array<Dtype>*>
-Network<Dtype>::get_data_input(int i)
+Network<Dtype>::get_data_bottom(int i)
 {
     std::vector<const Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -161,7 +202,58 @@ Network<Dtype>::get_data_input(int i)
 
 template<typename Dtype>
 std::vector<Array<Dtype>*>
-Network<Dtype>::get_data_output(int i)
+Network<Dtype>::get_gradient_bottom_mutable(int i)
+{
+    std::vector<Array<Dtype>*> res;
+    const auto &layer_proto = layers_[i]->proto();
+    int n = layer_proto.bottom_size();
+    for (int i = 0; i < n; i++)
+    {
+        const auto &name = layer_proto.bottom(i);
+        CHECK_EQ(gradient_.count(name), 1)
+            << "gradient with name " << name << " does not exist!";
+        res.push_back(gradient_[name].get());
+    }
+    return res;
+}
+
+template<typename Dtype>
+std::vector<const Array<Dtype>*>
+Network<Dtype>::get_gradient_bottom(int i)
+{
+    std::vector<const Array<Dtype>*> res;
+    const auto &layer_proto = layers_[i]->proto();
+    int n = layer_proto.bottom_size();
+    for (int i = 0; i < n; i++)
+    {
+        const auto &name = layer_proto.bottom(i);
+        CHECK_EQ(gradient_.count(name), 1)
+            << "gradient with name " << name << " does not exist!";
+        res.push_back(gradient_[name].get());
+    }
+    return res;
+}
+
+template<typename Dtype>
+std::vector<const Array<Dtype>*>
+Network<Dtype>::get_data_top(int i)
+{
+    std::vector<const Array<Dtype>*> res;
+    const auto &layer_proto = layers_[i]->proto();
+    int n = layer_proto.top_size();
+    for (int i = 0; i < n; i++)
+    {
+        const auto &name = layer_proto.top(i);
+        CHECK_EQ(data_.count(name), 1)
+            << "data with name " << name << " does not exist!";
+        res.push_back(data_[name].get());
+    }
+    return res;
+}
+
+template<typename Dtype>
+std::vector<Array<Dtype>*>
+Network<Dtype>::get_data_top_mutable(int i)
 {
     std::vector<Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -172,6 +264,40 @@ Network<Dtype>::get_data_output(int i)
         CHECK_EQ(data_.count(name), 1)
             << "data with name " << name << " does not exist!";
         res.push_back(data_[name].get());
+    }
+    return res;
+}
+
+template<typename Dtype>
+std::vector<const Array<Dtype>*>
+Network<Dtype>::get_gradient_top(int i)
+{
+    std::vector<const Array<Dtype>*> res;
+    const auto &layer_proto = layers_[i]->proto();
+    int n = layer_proto.top_size();
+    for (int i = 0; i < n; i++)
+    {
+        const auto &name = layer_proto.top(i);
+        CHECK_EQ(gradient_.count(name), 1)
+            << "gradient with name " << name << " does not exist!";
+        res.push_back(gradient_[name].get());
+    }
+    return res;
+}
+
+template<typename Dtype>
+std::vector<Array<Dtype>*>
+Network<Dtype>::get_gradient_top_mutable(int i)
+{
+    std::vector<Array<Dtype>*> res;
+    const auto &layer_proto = layers_[i]->proto();
+    int n = layer_proto.top_size();
+    for (int i = 0; i < n; i++)
+    {
+        const auto &name = layer_proto.top(i);
+        CHECK_EQ(gradient_.count(name), 1)
+            << "gradient with name " << name << " does not exist!";
+        res.push_back(gradient_[name].get());
     }
     return res;
 }

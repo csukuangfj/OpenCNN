@@ -15,41 +15,43 @@ L2LossLayer<Dtype>::L2LossLayer(const LayerProto& _proto)
 
 template<typename Dtype>
 void L2LossLayer<Dtype>::reshape(
-        const std::vector<const Array<Dtype>*>& input,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& bottom,
+        const std::vector<Array<Dtype>*>& bottom_gradient,
+        const std::vector<Array<Dtype>*>& top,
+        const std::vector<Array<Dtype>*>& /*top_gradient*/)
 {
-    CHECK_EQ(input.size(), 2)
+    CHECK_EQ(bottom.size(), 2)
         << "It should have two inputs where "
         << "input[0] is the predication and "
         << "input[1] is the ground truth";
 
-    CHECK_EQ(input[0]->n_, input[1]->n_);
-    CHECK_EQ(input[0]->c_, input[1]->c_);
-    CHECK_EQ(input[0]->h_, input[1]->h_);
-    CHECK_EQ(input[0]->w_, input[1]->w_);
+    CHECK(bottom[0]->has_same_shape(*bottom[1]));
 
-    CHECK_EQ(output.size(), 1);
-    output[0]->init(1, 1, 1, 1);
+    CHECK_EQ(top.size(), 1);
+    top[0]->init(1, 1, 1, 1);
 
-    // TODO(fangjun): allocate space for gradient only in the train phase.
-    this->gradient_.resize(1);
-    this->gradient_[0].reset(new Array<Dtype>);
-    this->gradient_[0]->init_like(*(input[0]));
+    if (this->proto_.phase() == TRAIN)
+    {
+        CHECK_GE(bottom_gradient.size(), 1);
+
+        bottom_gradient[0]->init_like(*(bottom[0]));
+        // we do not use the bottom_gradient[1] which is for the label
+    }
 }
 
 template<typename Dtype>
 void L2LossLayer<Dtype>::fprop(
-        const std::vector<const Array<Dtype>*>& input,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& bottom,
+        const std::vector<Array<Dtype>*>& top)
 {
     loss_ =  ax_sub_by_squared<Dtype>(
-            input[0]->total_,
-            1, input[0]->d_,
-            1, input[1]->d_);
+            bottom[0]->total_,
+            1, bottom[0]->d_,
+            1, bottom[1]->d_);
 
-    loss_ /= input[0]->total_;
+    loss_ /= bottom[0]->total_;
 
-    output[0]->d_[0] = loss_;
+    top[0]->d_[0] = loss_;
 }
 
 template<typename Dtype>
@@ -66,6 +68,7 @@ void L2LossLayer<Dtype>::bprop(
     (void) top;
     Dtype scale = 1;
 #endif
+    // TODO(fangjun) it can be optimized, i.e., with lapack or blas.
     for (int i = 0; i < bottom[0]->total_; i++)
     {
         Dtype estimated_y = bottom[0]->d_[i];

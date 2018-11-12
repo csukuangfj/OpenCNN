@@ -42,14 +42,24 @@ class Network
     void add_data(const std::string& name,
             std::shared_ptr<Array<Dtype>> arr);
 
-    std::vector<const Array<Dtype>*> get_data_input(int i);
-    std::vector<Array<Dtype>*> get_data_output(int i);
+    void add_gradient(const std::string& name,
+            std::shared_ptr<Array<Dtype>> arr);
+
+    std::vector<const Array<Dtype>*> get_data_bottom(int i);
+    std::vector<const Array<Dtype>*> get_data_top(int i);
+    std::vector<Array<Dtype>*> get_data_top_mutable(int i);
+
+    std::vector<Array<Dtype>*> get_gradient_bottom_mutable(int i) ;
+    std::vector<const Array<Dtype>*> get_gradient_bottom(int i) ;
+    std::vector<const Array<Dtype>*> get_gradient_top(int i);
+    std::vector<Array<Dtype>*> get_gradient_top_mutable(int i);
 
  private:
     NetworkProto proto_;
 
     /** it saves the input and output of all layers in the network*/
     std::map<std::string, std::shared_ptr<Array<Dtype>>> data_;
+    std::map<std::string, std::shared_ptr<Array<Dtype>>> gradient_;
 
     std::vector<std::shared_ptr<Layer<Dtype>>> layers_;
 };

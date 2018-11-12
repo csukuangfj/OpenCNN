@@ -22,17 +22,25 @@ enum LayerType
     FULL_CONNECTED  = 1;        // full connected layer
     L2_LOSS         = 2;        // l2 loss layer, for regression only
 }
+
+// same as caffe
+enum Phase
+{
+    TRAIN = 0;  // during the train phase, we have to allocate gradient
+    TEST  = 1;  // during the test case, no gradient is needed
+}
+
 message LayerProto
 {
-    optional string name = 1;       // can be arbitrary and may be not unique, for debug only
+    optional string name        = 1;    // can be arbitrary and may be not unique, for debug only
     optional LayerType type     = 2;
-    repeated string bottom  = 3;    // bottom/top name are globally unique
-    repeated string top = 4;        // bottom/top name are globally unique
+    repeated string bottom      = 3;    // bottom/top name are globally unique
+    repeated string top         = 4;    // bottom/top name are globally unique
+    optional Phase phase        = 5;    // train or test, used from gradient space allocation
+    repeated ArrayProto param   = 6;    // parameters for this layer
 
-    repeated ArrayProto param = 5;   // parameters for this layer
-
-    optional InputLayerProto input_proto = 6;
-    optional FullConnectedLayerProto fc_proto = 7;
+    optional InputLayerProto input_proto        = 7;
+    optional FullConnectedLayerProto fc_proto   = 8;
 }
 
 message InputLayerProto

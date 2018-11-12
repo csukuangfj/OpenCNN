@@ -14,50 +14,76 @@ FullConnectedLayer<Dtype>::FullConnectedLayer(const LayerProto& _proto)
     num_output_ = _proto.fc_proto().num_output();
 }
 
-
 template<typename Dtype>
 void FullConnectedLayer<Dtype>::reshape(
-        const std::vector<const Array<Dtype>*>& input,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& bottom,
+        const std::vector<Array<Dtype>*>& bottom_gradient,
+        const std::vector<Array<Dtype>*>& top,
+        const std::vector<Array<Dtype>*>& top_gradient)
 {
-    CHECK_EQ(input.size(), 1);
+    CHECK_EQ(bottom.size(), 1);
 
-    // resize output
-    CHECK_EQ(output.size(), 1);
-    int n = input[0]->n_;
+    CHECK_EQ(top.size(), 1);
+
+    int n = bottom[0]->n_;
     int c = num_output_;
     int h = 1;
     int w = 1;
-    output[0]->init(n, c, h, w);
+    top[0]->init(n, c, h, w);
 
     if (this->param_.empty())
     {
-        // resize param_
         this->param_.resize(2);
         this->param_[0] = std::make_shared<Array<Dtype>>();
-        this->param_[0]->init(1, 1, num_output_, input[0]->total_/n);
+        this->param_[0]->init(1, 1, num_output_, bottom[0]->total_/n);
+
+        // TODO(fangjun): use other strategies
         gaussian<Dtype>(this->param_[0].get(), 0, 1);
 
         this->param_[1] = std::make_shared<Array<Dtype>>();
         this->param_[1]->init(1, 1, 1, num_output_);
+
+        // TODO(fangjun): use other strategies
         gaussian<Dtype>(this->param_[1].get(), 0, 1);
     }
     else    // NOLINT
     {
         CHECK_EQ(this->param_.size(), 2);
-        CHECK_EQ(this->param_[0]->h_, num_output_);
-        CHECK_EQ(this->param_[0]->w_, input[0]->total_/n);
 
-        CHECK_EQ(this->param_[1]->total_, num_output_);
+        CHECK_EQ(this->param_[0]->n_, 1);
+        CHECK_EQ(this->param_[0]->c_, 1);
+        CHECK_EQ(this->param_[0]->h_, num_output_);
+        CHECK_EQ(this->param_[0]->w_, bottom[0]->total_/n);
+
+        CHECK(this->param_[1]->has_same_shape({1, 1, 1, num_output_}));
+    }
+
+    if (this->proto().phase() == TRAIN)
+    {
+        // gradient for the parameters
+        this->gradient_.resize(2);
+        this->gradient_[0].reset(new Array<Dtype>);
+        this->gradient_[1].reset(new Array<Dtype>);
+
+        this->gradient_[0]->init_like(*this->param_[0]);
+        this->gradient_[1]->init_like(*this->param_[1]);
+
+        // gradient for the bottom input
+        CHECK_EQ(bottom_gradient.size(), 1);
+        bottom_gradient[0]->init_like(*bottom[0]);
+
+        // gradient for the top input
+        CHECK_EQ(top_gradient.size(), 1);
+        top_gradient[0]->init(n, 1, 1, num_output_);
     }
 }
 
 template<typename Dtype>
 void FullConnectedLayer<Dtype>::fprop(
-        const std::vector<const Array<Dtype>*>& input,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& bottom,
+        const std::vector<Array<Dtype>*>& top)
 {
-    int n = input[0]->n_;
+    int n = bottom[0]->n_;
     for (int i = 0; i < n; i++)
     {
         for (int j = 0; j < num_output_; j++)
@@ -66,8 +92,8 @@ void FullConnectedLayer<Dtype>::fprop(
                     1,
                     &this->param_[0]->operator()(0, 0, j, 0),
                     1,
-                    &input[0]->operator()(i, 0, 0, 0));
-            output[0]->operator()(i, j, 0, 0) =
+                    &bottom[0]->operator()(i, 0, 0, 0));
+            top[0]->operator()(i, j, 0, 0) =
                 dot + this->param_[1]->operator[](j);
         }
     }
@@ -80,6 +106,40 @@ void FullConnectedLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& top,
         const std::vector<const Array<Dtype>*>& top_gradient)
 {
+    // compute parameter gradient
+    auto& w = *this->param_[0];
+    auto& dw = *this->gradient_[0];
+
+    auto& db = *this->gradient_[1];
+
+    auto& x = *bottom[0];
+    auto& dx = *bottom_gradient[0];
+
+    auto& y = *top[0];
+    auto& dy = *top_gradient[0];
+
+    int stride = dw.w_;
+    for (int n = 0; n < y.n_; n++)
+    {
+        for (int i = 0; i < num_output_; i++)
+        {
+            Dtype scale = dy(n, 0, 0, i);
+            ax_plus_by<Dtype>(stride,
+                    scale,
+                    &x[n*stride],
+                    1,
+                    &dw(0, 0, i, 0));
+
+            db.d_[i] += scale;
+
+            ax_plus_by<Dtype>(
+                    stride,
+                    scale,
+                    &w(0, 0, i, 0),
+                    1,
+                    &dx[n*stride]);
+        }
+    }
 }
 
 template class FullConnectedLayer<float>;

@@ -19,25 +19,27 @@ InputLayer<Dtype>::InputLayer(const LayerProto& _proto)
 
 template<typename Dtype>
 void InputLayer<Dtype>::reshape(
-        const std::vector<const Array<Dtype>*>& /*input*/,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& /*bottom*/,
+        const std::vector<Array<Dtype>*>& /*bottom_gradient*/,
+        const std::vector<Array<Dtype>*>& top,
+        const std::vector<Array<Dtype>*>& /*top_gradient*/)
 {
-    CHECK((output.size() == 1) || (output.size() == 2));
+    CHECK((top.size() == 1) || (top.size() == 2));
 
-    output[0]->init(n_, c_, h_, w_);
-    if (output.size() == 2)
+    top[0]->init(n_, c_, h_, w_);
+    if (top.size() == 2)
     {
         // resize the label
-        output[1]->init(n_, 1, 1, 1);
+        top[1]->init(n_, 1, 1, 1);
     }
 }
 
 template<typename Dtype>
 void InputLayer<Dtype>::fprop(
-        const std::vector<const Array<Dtype>*>& input,
-        const std::vector<Array<Dtype>*>& output)
+        const std::vector<const Array<Dtype>*>& /*input*/,
+        const std::vector<Array<Dtype>*>& /*output*/)
 {
-    LOG(INFO) << "fprop in input layer!";
+    // TODO(fangjun) load data from here
 }
 
 

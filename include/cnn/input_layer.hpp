@@ -15,7 +15,9 @@ class InputLayer : public Layer<Dtype>
 
     void reshape(
             const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& top) override;
+            const std::vector<Array<Dtype>*>& bottom_gradient,
+            const std::vector<Array<Dtype>*>& top,
+            const std::vector<Array<Dtype>*>& top_gradient) override;
 
     void fprop(
             const std::vector<const Array<Dtype>*>& input,

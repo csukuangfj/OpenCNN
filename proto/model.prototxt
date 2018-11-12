@@ -5,10 +5,10 @@ layer_proto {
     top: "data"
     top: "label"
     input_proto {
-        n: 2
+        n: 10
         c: 1
         h: 1
-        w: 3
+        w: 1
     }
 }
 

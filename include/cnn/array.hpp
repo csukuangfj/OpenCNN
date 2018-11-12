@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "proto/cnn.pb.h"
 
@@ -18,6 +19,10 @@ class Array
 
     void init(int n, int c, int h, int w);
     void init_like(const Array<Dtype> &arr);
+
+    bool has_same_shape(const Array<Dtype> &arr) const;
+    bool has_same_shape(const std::vector<int>& vec) const;
+    std::vector<int> shape_vec() const {return {n_, c_, h_, w_};}
 
     /**
      * Return the element at n*c_*h_*w_ + c*h_*w_ + h*w_ + w,

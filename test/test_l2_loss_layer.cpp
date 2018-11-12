@@ -14,82 +14,118 @@ class L2LossLayerTest : public ::testing::Test
     {
         LayerProto proto;
         proto.set_type(L2_LOSS);
-        l2_loss_layer_ = Layer<Dtype>::create(proto);
+        layer_ = Layer<Dtype>::create(proto);
     }
 protected:
-    std::shared_ptr<Layer<Dtype>> l2_loss_layer_;
+    std::shared_ptr<Layer<Dtype>> layer_;
 
+    Array<Dtype> bottom1_;  //!< the prediction
+    Array<Dtype> bottom2_;  //!< the ground truth
+
+    Array<Dtype> bottom1_gradient_; //!< gradient for the predication
+    Array<Dtype> top_;      //!< the loss, which is a scalar, i.e., with shape (1,1,1,1)
 };
 
 using MyTypes = ::testing::Types<float, double>;
 TYPED_TEST_CASE(L2LossLayerTest, MyTypes);
 
-TYPED_TEST(L2LossLayerTest, fprop)
+TYPED_TEST(L2LossLayerTest, reshape)
 {
-    Array<TypeParam> arr1;
-    Array<TypeParam> arr2;
-    arr1.init(2, 3, 4, 5);
-    arr2.init(2, 3, 4, 5);
+    // the train phase
+    this->layer_->proto().set_phase(TRAIN);
+    this->bottom1_.init(2, 3, 4, 5);
+    this->bottom2_.init_like(this->bottom1_);
 
-    set_to<TypeParam>(&arr1, 2);
-    set_to<TypeParam>(&arr2, 2);
+    this->layer_->reshape(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->bottom1_gradient_},
+            {&this->top_},
+            {});
 
-    int n = uniform(1, arr1.total_);
-    for (int i = 0; i < n; i++)
-    {
-        arr2[i] = 1;
-    }
+    EXPECT_TRUE(this->bottom1_gradient_.has_same_shape(this->bottom1_));
+    EXPECT_TRUE(this->top_.has_same_shape({1, 1, 1, 1}));
 
-    Array<TypeParam> out;
-
-    this->l2_loss_layer_->reshape({&arr1, &arr2}, {&out});
-    this->l2_loss_layer_->fprop({&arr1, &arr2}, {&out});
-    EXPECT_NEAR(out[0], TypeParam(n)/arr1.total_, 1e-4);
+    // now the test phase, no gradient memory should be allocated
+    this->layer_->proto().set_phase(TEST);
+    this->bottom1_gradient_.init(0, 0, 0, 0);
+    this->top_.init(0, 0, 0, 0);
+    this->layer_->reshape(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->bottom1_gradient_},
+            {&this->top_},
+            {});
+    EXPECT_TRUE(this->bottom1_gradient_.has_same_shape({0, 0, 0, 0}));
+    EXPECT_TRUE(this->top_.has_same_shape({1, 1, 1, 1}));
 }
 
-// TODO(fangjun): add gradient checker
-TYPED_TEST(L2LossLayerTest, bprop)
+TYPED_TEST(L2LossLayerTest, fprop)
 {
-    Array<TypeParam> arr1;
-    Array<TypeParam> arr2;
-    arr1.init(2, 5, 3, 4);
-    arr2.init(2, 5, 3, 4);
+    this->bottom1_.init(2, 3, 4, 5);
+    this->bottom2_.init(2, 3, 4, 5);
 
-    set_to<TypeParam>(&arr1, 2);
-    set_to<TypeParam>(&arr2, 2);
+    set_to<TypeParam>(&this->bottom1_, 2);
+    set_to<TypeParam>(&this->bottom2_, 2);
 
-    int n = uniform(1, arr1.total_-1);
+    int n = uniform(1, this->bottom1_.total_);
     for (int i = 0; i < n; i++)
     {
-        arr2[i] = 1;
+        this->bottom2_[i] = 1;
     }
 
-    Array<TypeParam> out;
-
-    this->l2_loss_layer_->reshape({&arr1, &arr2}, {&out});
-    this->l2_loss_layer_->fprop({&arr1, &arr2}, {&out});
-
-    Array<TypeParam> gradient;
-    gradient.init_like(arr1);
-    this->l2_loss_layer_->bprop(
-            {&arr1, &arr2},
-            {&gradient},
-            {&out},
+    this->layer_->reshape(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->bottom1_gradient_},
+            {&this->top_},
             {});
-    for (int i = 0; i < gradient.total_; i++)
+
+    this->layer_->fprop(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->top_});
+    EXPECT_NEAR(this->top_[0], TypeParam(n)/this->bottom1_.total_, 1e-4);
+}
+
+TYPED_TEST(L2LossLayerTest, bprop)
+{
+    this->bottom1_.init(2, 5, 3, 4);
+    this->bottom2_.init(2, 5, 3, 4);
+
+    set_to<TypeParam>(&this->bottom1_, 2);
+    set_to<TypeParam>(&this->bottom2_, 2);
+
+    int n = uniform(1, this->bottom1_.total_-1);
+    for (int i = 0; i < n; i++)
+    {
+        this->bottom2_[i] = 1;
+    }
+
+    this->layer_->reshape(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->bottom1_gradient_},
+            {&this->top_},
+            {});
+
+    this->layer_->fprop(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->top_});
+
+    this->layer_->bprop(
+            {&this->bottom1_, &this->bottom2_},
+            {&this->bottom1_gradient_},
+            {&this->top_},
+            {});
+    for (int i = 0; i < this->bottom1_gradient_.total_; i++)
     {
         if (i < n)
         {
-            EXPECT_EQ(gradient[i], 1);
+            EXPECT_EQ(this->bottom1_gradient_[i], 1);
         }
         else
         {
-            EXPECT_EQ(gradient[i], 0);
+            EXPECT_EQ(this->bottom1_gradient_[i], 0);
         }
     }
 }
 
 
 }  // namespace cnn
-
 

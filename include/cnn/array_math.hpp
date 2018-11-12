@@ -71,6 +71,25 @@ Dtype ax_dot_by(int n, Dtype alpha, const Dtype* x,
 }
 
 /**
+ * y[i] = alpha*x[i] + beta*y[i]
+ * @param n number of elements
+ * @param alpha every element in x is scaled by alpha
+ * @param x an array of n elements
+ * @param beta every element in y is scaled by beta
+ * @param y an array of n elements
+ * @return void
+ */
+template<typename Dtype>
+void ax_plus_by(int n, Dtype alpha, const Dtype* x,
+        Dtype beta, Dtype* y)
+{
+    for (int i = 0; i < n; i++)
+    {
+        y[i] = alpha * x[i] + beta * y[i];
+    }
+}
+
+/**
  * Set all elements of the array to the specified value.
  * After this operation,
  * arr[0]=arr[1]=...=arr[total]=val
@@ -81,9 +100,16 @@ Dtype ax_dot_by(int n, Dtype alpha, const Dtype* x,
 template<typename Dtype>
 void set_to(Array<Dtype>* arr, Dtype val)
 {
-    for (int i = 0; i < arr->total_; i++)
+    if (!val)
     {
-        arr->d_[i] = val;
+        memset(arr->d_, 0, sizeof(Dtype)*arr->total_);
+    }
+    else
+    {
+        for (int i = 0; i < arr->total_; i++)
+        {
+            arr->d_[i] = val;
+        }
     }
 }
 
