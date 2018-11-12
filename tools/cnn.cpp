@@ -6,7 +6,7 @@
 
 #include "cnn/network.hpp"
 
-int main(int argc, char* argv[])
+int main(int /*argc*/, char* argv[])
 {
     google::InitGoogleLogging(argv[0]);
     FLAGS_alsologtostderr = true;

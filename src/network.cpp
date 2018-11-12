@@ -230,7 +230,7 @@ void Network<Dtype>::add_gradient(
 
 template<typename Dtype>
 std::vector<const Array<Dtype>*>
-Network<Dtype>::get_data_bottom(int i)
+Network<Dtype>::get_data_bottom(int i) const
 {
     std::vector<const Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -240,7 +240,7 @@ Network<Dtype>::get_data_bottom(int i)
         const auto &name = layer_proto.bottom(i);
         CHECK_EQ(data_.count(name), 1)
             << "data with name " << name << " does not exist!";
-        res.push_back(data_[name].get());
+        res.push_back(data_.at(name).get());
     }
     return res;
 }
@@ -264,7 +264,7 @@ Network<Dtype>::get_gradient_bottom_mutable(int i)
 
 template<typename Dtype>
 std::vector<const Array<Dtype>*>
-Network<Dtype>::get_gradient_bottom(int i)
+Network<Dtype>::get_gradient_bottom(int i) const
 {
     std::vector<const Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -274,14 +274,14 @@ Network<Dtype>::get_gradient_bottom(int i)
         const auto &name = layer_proto.bottom(i);
         CHECK_EQ(gradient_.count(name), 1)
             << "gradient with name " << name << " does not exist!";
-        res.push_back(gradient_[name].get());
+        res.push_back(gradient_.at(name).get());
     }
     return res;
 }
 
 template<typename Dtype>
 std::vector<const Array<Dtype>*>
-Network<Dtype>::get_data_top(int i)
+Network<Dtype>::get_data_top(int i) const
 {
     std::vector<const Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -291,7 +291,7 @@ Network<Dtype>::get_data_top(int i)
         const auto &name = layer_proto.top(i);
         CHECK_EQ(data_.count(name), 1)
             << "data with name " << name << " does not exist!";
-        res.push_back(data_[name].get());
+        res.push_back(data_.at(name).get());
     }
     return res;
 }
@@ -315,7 +315,7 @@ Network<Dtype>::get_data_top_mutable(int i)
 
 template<typename Dtype>
 std::vector<const Array<Dtype>*>
-Network<Dtype>::get_gradient_top(int i)
+Network<Dtype>::get_gradient_top(int i) const
 {
     std::vector<const Array<Dtype>*> res;
     const auto &layer_proto = layers_[i]->proto();
@@ -325,7 +325,7 @@ Network<Dtype>::get_gradient_top(int i)
         const auto &name = layer_proto.top(i);
         CHECK_EQ(gradient_.count(name), 1)
             << "gradient with name " << name << " does not exist!";
-        res.push_back(gradient_[name].get());
+        res.push_back(gradient_.at(name).get());
     }
     return res;
 }

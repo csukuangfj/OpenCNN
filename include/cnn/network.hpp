@@ -30,7 +30,7 @@ class Network
     /** backward propagation */
     void bprop();
 
-    Dtype get_loss()
+    Dtype get_loss() const
     {
         return get_data_top(layers_.size()-1)[0]->d_[0];
     }
@@ -39,7 +39,7 @@ class Network
      */
 
     void perform_predication();
-    std::vector<Dtype> get_predications()
+    std::vector<Dtype> get_predications() const
     {
         std::vector<Dtype> res;
         auto top = get_data_top(layers_.size()-1)[0];
@@ -50,7 +50,7 @@ class Network
         return res;
     }
 
-    int get_batch_size()
+    int get_batch_size() const
     {
         return layers_[0]->proto().input_proto().n();
     }
@@ -70,13 +70,13 @@ class Network
         return layers_;
     }
 
-    std::vector<const Array<Dtype>*> get_data_bottom(int i);
-    std::vector<const Array<Dtype>*> get_data_top(int i);
+    std::vector<const Array<Dtype>*> get_data_bottom(int i) const;
+    std::vector<const Array<Dtype>*> get_data_top(int i) const;
     std::vector<Array<Dtype>*> get_data_top_mutable(int i);
 
     std::vector<Array<Dtype>*> get_gradient_bottom_mutable(int i);
-    std::vector<const Array<Dtype>*> get_gradient_bottom(int i);
-    std::vector<const Array<Dtype>*> get_gradient_top(int i);
+    std::vector<const Array<Dtype>*> get_gradient_bottom(int i) const;
+    std::vector<const Array<Dtype>*> get_gradient_top(int i) const;
     std::vector<Array<Dtype>*> get_gradient_top_mutable(int i);
 
  private:

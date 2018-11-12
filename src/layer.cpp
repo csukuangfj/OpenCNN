@@ -28,23 +28,26 @@ template<typename Dtype>
 std::shared_ptr<Layer<Dtype>>
 Layer<Dtype>::create(const LayerProto& _proto)
 {
+#define CREATE_LAYER(type_name, class_name)         \
+    case type_name:                                 \
+        res.reset(new class_name<Dtype>(_proto));   \
+        break
+
     std::shared_ptr<Layer<Dtype>> res;
     switch (_proto.type())
     {
-        case INPUT:
-            res.reset(new InputLayer<Dtype>(_proto));
-            break;
-        case FULL_CONNECTED:
-            res.reset(new FullConnectedLayer<Dtype>(_proto));
-            break;
-        case L2_LOSS:
-            res.reset(new L2LossLayer<Dtype>(_proto));
-            break;
+        CREATE_LAYER(INPUT, InputLayer);
+        CREATE_LAYER(FULL_CONNECTED, FullConnectedLayer);
+        CREATE_LAYER(L2_LOSS, L2LossLayer);
+
         default:
             LOG(FATAL) << "Unknown layer type: "
                 << LayerType_Name(_proto.type());
             break;
     }
+
+#undef CREATE_LAYER
+
     CHECK_NOTNULL(res.get());
     return res;
 }
