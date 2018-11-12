@@ -25,6 +25,7 @@ add_library(
     src/l2_loss_layer.cpp
     src/array_math.cpp
     src/optimizer.cpp
+    src/softmax_layer.cpp
     )
 target_link_libraries(
     core

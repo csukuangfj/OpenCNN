@@ -70,7 +70,10 @@ void FullConnectedLayer<Dtype>::reshape(
 
         // gradient for the bottom input
         CHECK_EQ(bottom_gradient.size(), 1);
-        bottom_gradient[0]->init_like(*bottom[0]);
+        if (!bottom_gradient[0]->has_same_shape(*bottom[0]))
+        {
+            bottom_gradient[0]->init_like(*bottom[0]);
+        }
 
         // gradient for the top input
         CHECK_EQ(top_gradient.size(), 1);

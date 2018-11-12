@@ -114,6 +114,44 @@ void set_to(Array<Dtype>* arr, Dtype val)
 }
 
 /**
+ * dst[i] = alpha * src[i]
+ */
+template<typename Dtype>
+void scale_arr(Dtype alpha, const Array<Dtype>& src, Array<Dtype> *dst)
+{
+    for (int i = 0; i < src.total_; i++)
+    {
+        dst->d_[i] = alpha * src.d_[i];
+    }
+}
+
+/**
+ * res = src[0] + src[1] + src[2] + ... + src[total-1]
+ */
+template<typename Dtype>
+Dtype sum_arr(const Array<Dtype>& src)
+{
+    Dtype res = 0;
+    for (int i = 0; i < src.total_; i++)
+    {
+        res += src.d_[i];
+    }
+    return res;
+}
+
+/**
+ * dst[i] = src[i] - alpha
+ */
+template<typename Dtype>
+void sub_scalar(Dtype alpha, const Array<Dtype>& src, Array<Dtype> *dst)
+{
+    for (int i = 0; i < src.total_; i++)
+    {
+        dst->d_[i] = src.d_[i] - alpha;
+    }
+}
+
+/**
  * Fill the array with random values drawn from a guassian
  * distribution with the given mean and standard deviation.
  *

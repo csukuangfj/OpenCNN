@@ -81,4 +81,41 @@ TYPED_TEST(ArrayMathTest, gaussian)
     EXPECT_NEAR(5/std::sqrt(var), 1, 0.01);
 }
 
+TYPED_TEST(ArrayMathTest, scale_arr)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = 2;
+    d[1] = 3;
+    scale_arr<TypeParam>(2, d, &d);
+    EXPECT_EQ(d[0], 4);
+    EXPECT_EQ(d[1], 6);
+
+    scale_arr<TypeParam>(0.5, d, &d);
+    EXPECT_EQ(d[0], 2);
+    EXPECT_EQ(d[1], 3);
+}
+
+TYPED_TEST(ArrayMathTest, sum_arr)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = -1;
+    d[1] = 3;
+    auto r = sum_arr<TypeParam>(d);
+    EXPECT_EQ(r, 2);
+}
+
+TYPED_TEST(ArrayMathTest, sub_scalar)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = 10;
+    d[1] = 5;
+
+    sub_scalar<TypeParam>(2, d, &d);
+    EXPECT_EQ(d[0], 8);
+    EXPECT_EQ(d[1], 3);
+}
+
 }  // namespace cnn
