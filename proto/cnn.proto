@@ -11,6 +11,12 @@ message ArrayProto
     repeated double d = 5;      // data
 }
 
+message OptimizerProto
+{
+    optional string model_filename = 1;
+    optional double learning_rate = 2;
+}
+
 message NetworkProto
 {
     repeated LayerProto layer_proto = 1;

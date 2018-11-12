@@ -1,0 +1,3 @@
+
+model_filename: "../proto/model.prototxt"
+learning_rate: 0.001

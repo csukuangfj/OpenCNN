@@ -24,6 +24,7 @@ add_library(
     src/network.cpp
     src/l2_loss_layer.cpp
     src/array_math.cpp
+    src/optimizer.cpp
     )
 target_link_libraries(
     core

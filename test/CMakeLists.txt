@@ -12,6 +12,7 @@ add_executable(gtest
     test_array_math.cpp
     test_l2_loss_layer.cpp
     test_full_connected_layer.cpp
+    test_optimizer.cpp
     )
 target_link_libraries(
     gtest

@@ -47,7 +47,7 @@ GTEST_API_ int main(int argc, char **argv)
   // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
   // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
   // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
-
+  ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
 
   testing::InitGoogleTest(&argc, argv);
 
