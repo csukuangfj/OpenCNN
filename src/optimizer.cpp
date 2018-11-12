@@ -49,6 +49,10 @@ void Optimizer<Dtype>::start_training()
             print_parameters();
         }
     }
+
+    LOG(INFO) << "iteration: " << max_iter;
+    LOG(INFO) << "loss is: " << network_->get_loss();
+    print_parameters();
 }
 
 template<typename Dtype>
@@ -58,6 +62,7 @@ void Optimizer<Dtype>::update_parameters()
     int num_layers = layers.size();
 
     Dtype learning_rate = proto_.learning_rate();
+    learning_rate /= network_->get_batch_size();
 
     // we skip the input layer since it has no parameters
     for (int i = 1; i < num_layers; i++)
@@ -84,6 +89,7 @@ void Optimizer<Dtype>::print_parameters()
 
     std::ostringstream ss;
     ss << "\n";
+    ss << "batch size is: " << network_->get_batch_size() << "\n";
     // we skip the input layer since it has no parameters
     for (int i = 1; i < num_layers; i++)
     {

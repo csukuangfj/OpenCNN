@@ -34,6 +34,10 @@ class Network
     {
         return get_data_top(layers_.size()-1)[0]->d_[0];
     }
+    int get_batch_size()
+    {
+        return layers_[0]->proto().input_proto().n();
+    }
 
     /** compute the loss for the last forward propagation.
      * No forward propagation is performed here; it just gets

@@ -1,5 +1,6 @@
 #include <glog/logging.h>
 
+#include <utility>
 #include <vector>
 
 #include "cnn/input_layer.hpp"
@@ -53,25 +54,38 @@ void InputLayer<Dtype>::fprop(
         {{-1}, -5},
     };
     // TODO(fangjun) load data from here
-    // TODO(fangjun) split the data into multiple batches
 
-    CHECK_GE(top.size(), 1);
-    if (top[0]->n_ != data.size()) return;
-    CHECK_EQ(top[0]->n_, data.size());
-    CHECK_EQ(top[0]->w_, data[0].first.size());
-    for (int n = 0; n < data.size(); n++)
+
+    int n = top[0]->n_;
+    int stride = top[0]->total_/n;
+    if (stride != data[0].first.size()) return;
+
+    static int k = 0;
+    CHECK_LE(n, data.size())
+        << "the batch size cannot be larger than the dataset size";
+
+    CHECK_EQ(stride, data[0].first.size());
+
+    for (int i = 0; i < n; i++)
     {
-        for (int i = 0; i < top[0]->w_; i++)
+        if (k >= data.size())
         {
-            top[0]->operator()(n, 0, 0, i) = (data[n].first)[i];
+            k = 0;
         }
+
+        for (int j = 0; j < stride; j++)
+        {
+            top[0]->d_[i*stride + j] = (data[k].first)[j];
+        }
+
         if (top.size() == 2)
         {
-            top[1]->d_[n] = data[n].second;
+            top[1]->d_[i] = data[k].second;
         }
+
+        k++;
     }
 }
-
 
 template class InputLayer<float>;
 template class InputLayer<double>;
