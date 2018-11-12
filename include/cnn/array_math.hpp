@@ -104,7 +104,7 @@ void set_to(Array<Dtype>* arr, Dtype val)
     {
         memset(arr->d_, 0, sizeof(Dtype)*arr->total_);
     }
-    else
+    else    // NOLINT
     {
         for (int i = 0; i < arr->total_; i++)
         {

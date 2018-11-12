@@ -49,8 +49,8 @@ class Network
     std::vector<const Array<Dtype>*> get_data_top(int i);
     std::vector<Array<Dtype>*> get_data_top_mutable(int i);
 
-    std::vector<Array<Dtype>*> get_gradient_bottom_mutable(int i) ;
-    std::vector<const Array<Dtype>*> get_gradient_bottom(int i) ;
+    std::vector<Array<Dtype>*> get_gradient_bottom_mutable(int i);
+    std::vector<const Array<Dtype>*> get_gradient_bottom(int i);
     std::vector<const Array<Dtype>*> get_gradient_top(int i);
     std::vector<Array<Dtype>*> get_gradient_top_mutable(int i);
 
