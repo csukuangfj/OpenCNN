@@ -53,6 +53,7 @@ void Optimizer<Dtype>::start_training()
     LOG(INFO) << "iteration: " << max_iter;
     LOG(INFO) << "loss is: " << network_->get_loss();
     print_parameters();
+    network_->save_network("trained.prototxt");
 }
 
 template<typename Dtype>

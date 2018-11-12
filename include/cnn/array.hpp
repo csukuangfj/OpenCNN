@@ -51,7 +51,7 @@ class Array
 
  public:
     void from_proto(const ArrayProto& proto);
-    void to_proto(ArrayProto* proto);
+    void to_proto(ArrayProto* proto) const;
 };
 
 }  // namespace cnn

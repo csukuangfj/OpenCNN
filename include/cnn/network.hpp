@@ -39,11 +39,7 @@ class Network
         return layers_[0]->proto().input_proto().n();
     }
 
-    /** compute the loss for the last forward propagation.
-     * No forward propagation is performed here; it just gets
-     * the loss from the last loss layer.
-     */
-    Dtype compute_loss();
+    void save_network(const std::string &filename, bool is_binary = false);
 
     std::shared_ptr<Layer<Dtype>> layer(int i) const
     {

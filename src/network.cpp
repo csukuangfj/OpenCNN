@@ -100,6 +100,38 @@ void Network<Dtype>::init(const NetworkProto& _proto)
 
 
 template<typename Dtype>
+void Network<Dtype>::save_network(
+        const std::string &filename,
+        bool is_binary /*= false*/)
+{
+    int num_layers = layers_.size();
+    NetworkProto _proto;
+    for (int i = 0; i < num_layers; i++)
+    {
+        auto& layer = *layers_[i];
+        auto* target = _proto.add_layer_proto();
+        target->CopyFrom(layer.proto());
+        target->clear_param();
+
+        auto param = layer.param();
+        for (int j = 0; j < param.size(); j++)
+        {
+            param[j]->to_proto(target->add_param());
+        }
+    }
+
+    if (is_binary)
+    {
+        write_proto_bin(filename, _proto);
+    }
+    else
+    {
+        write_proto_txt(filename, _proto);
+    }
+}
+
+
+template<typename Dtype>
 void Network<Dtype>::reshape()
 {
     static bool init = false;

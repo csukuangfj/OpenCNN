@@ -169,7 +169,7 @@ void Array<Dtype>::from_proto(const ArrayProto& proto)
 }
 
 template<typename Dtype>
-void Array<Dtype>::to_proto(ArrayProto* proto)
+void Array<Dtype>::to_proto(ArrayProto* proto) const
 {
     proto->set_n(n_);
     proto->set_c(c_);
