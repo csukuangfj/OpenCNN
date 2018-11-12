@@ -124,7 +124,7 @@ void Network<Dtype>::save_network(
     {
         write_proto_bin(filename, _proto);
     }
-    else
+    else    // NOLINT
     {
         write_proto_txt(filename, _proto);
     }
@@ -190,6 +190,19 @@ void Network<Dtype>::bprop()
                 get_gradient_bottom_mutable(i),
                 get_data_top(i),
                 get_gradient_top(i));
+    }
+}
+
+template<typename Dtype>
+void Network<Dtype>::perform_predication()
+{
+    // we assume that the user has already setup the input data
+    // via get_data_top(0)
+    for (int i = 1; i < layers_.size(); i++)
+    {
+        layers_[i]->fprop(
+                get_data_bottom(i),
+                get_data_top_mutable(i));
     }
 }
 

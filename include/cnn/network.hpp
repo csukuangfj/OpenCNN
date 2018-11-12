@@ -34,6 +34,22 @@ class Network
     {
         return get_data_top(layers_.size()-1)[0]->d_[0];
     }
+    /**
+     * we assume that the output of the last blob saves the predication
+     */
+
+    void perform_predication();
+    std::vector<Dtype> get_predications()
+    {
+        std::vector<Dtype> res;
+        auto top = get_data_top(layers_.size()-1)[0];
+        for (int i = 0; i < top->total_; i++)
+        {
+            res.push_back(top->d_[i]);
+        }
+        return res;
+    }
+
     int get_batch_size()
     {
         return layers_[0]->proto().input_proto().n();

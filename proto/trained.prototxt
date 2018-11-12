@@ -1,0 +1,34 @@
+layer_proto {
+  name: "input"
+  type: INPUT
+  top: "data"
+  input_proto {
+    n: 1
+    c: 1
+    h: 1
+    w: 1
+  }
+}
+layer_proto {
+  name: "fc1"
+  type: FULL_CONNECTED
+  bottom: "data"
+  top: "fc1"
+  param {
+    n: 1
+    c: 1
+    h: 1
+    w: 1
+    d: 10.001843607683776
+  }
+  param {
+    n: 1
+    c: 1
+    h: 1
+    w: 1
+    d: 4.9333594877468165
+  }
+  fc_proto {
+    num_output: 1
+  }
+}
