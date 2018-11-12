@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "cnn/array_math.hpp"
 #include "cnn/io.hpp"
 #include "cnn/optimizer.hpp"
 
@@ -26,11 +27,82 @@ template<typename Dtype>
 void Optimizer<Dtype>::init(const OptimizerProto& _proto)
 {
     proto_ = _proto;
-    LOG(INFO) << "\n\n" << proto_.DebugString() << "\n";
 
     auto network_filename = proto_.model_filename();
     network_.reset(new Network<Dtype>(network_filename));
-    LOG(INFO) << "\n\n--\n" << network_->proto().DebugString() << "\n---\n";
+}
+
+template<typename Dtype>
+void Optimizer<Dtype>::start_training()
+{
+    int max_iter = proto_.max_iteration_num();
+    network_->reshape();
+    for (int i = 0; i < max_iter; i++)
+    {
+        network_->fprop();
+        network_->bprop();
+        update_parameters();
+        if (i % 1000 == 0)
+        {
+            LOG(INFO) << "iteration: " << i;
+            LOG(INFO) << "loss is: " << network_->get_loss();
+            print_parameters();
+        }
+    }
+}
+
+template<typename Dtype>
+void Optimizer<Dtype>::update_parameters()
+{
+    auto& layers = network_->layers();
+    int num_layers = layers.size();
+
+    Dtype learning_rate = proto_.learning_rate();
+
+    // we skip the input layer since it has no parameters
+    for (int i = 1; i < num_layers; i++)
+    {
+        auto param = layers[i]->mutable_param();
+        auto gradient = layers[i]->gradient();
+        for (int i = 0; i < param.size(); i++)
+        {
+            ax_plus_by<Dtype>(
+                    param[i]->total_,
+                    -learning_rate,
+                    &gradient[i]->d_[0],
+                    1,
+                    &param[i]->d_[0]);
+        }
+    }
+}
+
+template<typename Dtype>
+void Optimizer<Dtype>::print_parameters()
+{
+    auto& layers = network_->layers();
+    int num_layers = layers.size();
+
+    std::ostringstream ss;
+    ss << "\n";
+    // we skip the input layer since it has no parameters
+    for (int i = 1; i < num_layers; i++)
+    {
+        auto param = layers[i]->mutable_param();
+        if (param.empty()) continue;
+        ss << "parameters for layer: " << layers[i]->proto().name();
+        ss << "\n";
+
+        for (int j = 0; j < param.size(); j++)
+        {
+            for (int k = 0; k < param[j]->total_; k++)
+            {
+                ss << param[j]->d_[k] << " ";
+            }
+            ss << "\n";
+        }
+    }
+
+    LOG(INFO) << ss.str();
 }
 
 template class Optimizer<float>;

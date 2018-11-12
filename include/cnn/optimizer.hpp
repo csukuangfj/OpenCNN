@@ -18,6 +18,12 @@ class Optimizer
     explicit Optimizer(const std::string& filename);
     void init(const OptimizerProto& _proto);
 
+    void start_training();
+ private:
+    void update_parameters();
+ private:
+    void print_parameters();
+
  private:
     OptimizerProto proto_;
 

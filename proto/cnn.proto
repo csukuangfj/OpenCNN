@@ -15,6 +15,7 @@ message OptimizerProto
 {
     optional string model_filename = 1;
     optional double learning_rate = 2;
+    optional int32 max_iteration_num = 3;   // maximum number of iterations
 }
 
 message NetworkProto

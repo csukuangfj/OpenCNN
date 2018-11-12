@@ -36,10 +36,40 @@ void InputLayer<Dtype>::reshape(
 
 template<typename Dtype>
 void InputLayer<Dtype>::fprop(
-        const std::vector<const Array<Dtype>*>& /*input*/,
-        const std::vector<Array<Dtype>*>& /*output*/)
+        const std::vector<const Array<Dtype>*>& /*bottom*/,
+        const std::vector<Array<Dtype>*>& top)
 {
+    // y = 5 + 10*x
+    static std::vector<std::pair<std::vector<Dtype>, Dtype>> data{
+        {{11}, 115},
+        {{-14}, -135},
+        {{15}, 155},
+        {{6}, 65},
+        {{-18}, -175},
+        {{-8}, -75},
+        {{9}, 95},
+        {{-4}, -35},
+        {{18}, 185},
+        {{-1}, -5},
+    };
     // TODO(fangjun) load data from here
+    // TODO(fangjun) split the data into multiple batches
+
+    CHECK_GE(top.size(), 1);
+    if (top[0]->n_ != data.size()) return;
+    CHECK_EQ(top[0]->n_, data.size());
+    CHECK_EQ(top[0]->w_, data[0].first.size());
+    for (int n = 0; n < data.size(); n++)
+    {
+        for (int i = 0; i < top[0]->w_; i++)
+        {
+            top[0]->operator()(n, 0, 0, i) = (data[n].first)[i];
+        }
+        if (top.size() == 2)
+        {
+            top[1]->d_[n] = data[n].second;
+        }
+    }
 }
 
 

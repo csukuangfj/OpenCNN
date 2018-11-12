@@ -30,6 +30,11 @@ class Network
     /** backward propagation */
     void bprop();
 
+    Dtype get_loss()
+    {
+        return get_data_top(layers_.size()-1)[0]->d_[0];
+    }
+
     /** compute the loss for the last forward propagation.
      * No forward propagation is performed here; it just gets
      * the loss from the last loss layer.
@@ -39,6 +44,14 @@ class Network
     std::shared_ptr<Layer<Dtype>> layer(int i) const
     {
         return layers_[i];
+    }
+    const std::vector<std::shared_ptr<Layer<Dtype>>>& layers() const
+    {
+        return layers_;
+    }
+    std::vector<std::shared_ptr<Layer<Dtype>>>& layers()
+    {
+        return layers_;
     }
 
     std::vector<const Array<Dtype>*> get_data_bottom(int i);
