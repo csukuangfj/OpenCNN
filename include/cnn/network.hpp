@@ -79,6 +79,11 @@ class Network
     std::vector<const Array<Dtype>*> get_gradient_top(int i) const;
     std::vector<Array<Dtype>*> get_gradient_top_mutable(int i);
 
+    void register_data_callback(void (*f)(const std::vector<Array<Dtype>*> &))
+    {
+        data_callback_ = f;
+    }
+
  private:
     // add data to the map
     void add_data(const std::string& name,
@@ -95,6 +100,8 @@ class Network
     std::map<std::string, std::shared_ptr<Array<Dtype>>> gradient_;
 
     std::vector<std::shared_ptr<Layer<Dtype>>> layers_;
+
+    std::function<void(const std::vector<Array<Dtype>*>& top)> data_callback_;
 };
 
 }  // namespace cnn

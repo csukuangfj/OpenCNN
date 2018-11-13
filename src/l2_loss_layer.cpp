@@ -71,6 +71,8 @@ void L2LossLayer<Dtype>::bprop(
     (void) top;
     Dtype scale = 1;
 #endif
+
+    scale /= bottom[0]->total_;
     // TODO(fangjun) it can be optimized, i.e., with lapack or blas.
     for (int i = 0; i < bottom[0]->total_; i++)
     {

@@ -24,5 +24,9 @@ void write_proto_bin(
         const std::string& filename,
         const google::protobuf::Message& message);
 
+void string_to_proto(
+        const std::string& filename,
+        google::protobuf::Message* message);
+
 }  // namespace cnn
 

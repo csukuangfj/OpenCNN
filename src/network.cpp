@@ -156,7 +156,14 @@ void Network<Dtype>::reshape()
 template<typename Dtype>
 void Network<Dtype>::fprop()
 {
-    layers_[0]->fprop({}, get_data_top_mutable(0));
+    if (data_callback_)
+    {
+        data_callback_(get_data_top_mutable(0));
+    }
+    else    // NOLINT
+    {
+        layers_[0]->fprop({}, get_data_top_mutable(0));
+    }
     for (int i = 1; i < layers_.size(); i++)
     {
         layers_[i]->fprop(

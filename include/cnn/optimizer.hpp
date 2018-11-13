@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "proto/cnn.pb.h"
 
@@ -19,6 +20,11 @@ class Optimizer
     void init(const OptimizerProto& _proto);
 
     void start_training();
+
+    void register_data_callback(void (*f)(const std::vector<Array<Dtype>*> &))
+    {
+        network_->register_data_callback(f);
+    }
  private:
     void update_parameters();
  private:

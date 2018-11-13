@@ -75,4 +75,11 @@ void write_proto_bin(
         << "Failed to write " << filename;
 }
 
+void string_to_proto(
+        const std::string& model,
+        google::protobuf::Message* message)
+{
+    CHECK(google::protobuf::TextFormat::ParseFromString(model, message));
+}
+
 }  // namespace cnn

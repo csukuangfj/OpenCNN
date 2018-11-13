@@ -1,9 +1,13 @@
 #include <glog/logging.h>
 
+#include <algorithm>
 #include <vector>
 
 #include "cnn/array_math.hpp"
 #include "cnn/log_loss_layer.hpp"
+
+// we use the same threshold as caffe for computing log()
+static float g_log_threshold = 1e-20;
 
 namespace cnn
 {
@@ -51,6 +55,28 @@ void LogLossLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
+    loss_ = 0;
+
+    auto& t = *top[0];
+
+    const auto& b0 = *bottom[0];
+    const auto& b1 = *bottom[1];
+
+    for (int n = 0; n < b1.n_; n++)
+    for (int h = 0; h < b1.h_; h++)
+    for (int w = 0; w < b1.w_; w++)
+    {
+        auto label = b1(n, 0, h, w);    // label for the ground truth
+        auto p = b0(n, label, h, w);    // probability for the predication
+        p = std::max(p, Dtype(g_log_threshold));
+        p = std::min(p, Dtype(1));
+
+        loss_ += -std::log(p);
+    }
+
+    loss_ /= b1.total_;     // take the average
+
+    top[0]->d_[0] = loss_;
 }
 
 template<typename Dtype>
@@ -67,6 +93,24 @@ void LogLossLayer<Dtype>::bprop(
     (void) top;
     Dtype scale = 1;
 #endif
+
+    const auto& t = *top[0];
+    const auto& b0 = *bottom[0];
+    const auto& b1 = *bottom[1];
+    auto& bg = *bottom_gradient[0];
+
+    scale /= b1.total_;
+    for (int n = 0; n < b1.n_; n++)
+    for (int h = 0; h < b1.h_; h++)
+    for (int w = 0; w < b1.w_; w++)
+    {
+        auto label = b1(n, 0, h, w);
+
+        auto p = b0(n, label, h, w);    // probability for the predication
+        p = std::max(p, Dtype(g_log_threshold));
+        p = std::min(p, Dtype(1));
+        bg(n, label, h, w) = -scale / p;
+    }
 }
 
 template class LogLossLayer<float>;

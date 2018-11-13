@@ -3,6 +3,8 @@
 #include "cnn/common.hpp"
 #include "cnn/io.hpp"
 
+#include "proto/cnn.pb.h"
+
 namespace cnn
 {
 
@@ -58,6 +60,29 @@ TEST(io_test, bin)
     {
         EXPECT_EQ(arr.d(i), arr2.d(i));
     }
+}
+
+TEST(io_test, string_to_proto)
+{
+    const char* model =
+R"proto(
+layer_proto {
+    name: "input"
+    type: INPUT
+    top: "data"
+    top: "label"
+    input_proto {
+        n: 5
+        c: 1
+        h: 1
+        w: 1
+    }
+}
+)proto";
+    NetworkProto proto;
+    string_to_proto(model, &proto);
+    LOG(INFO) << proto.DebugString();
+
 }
 
 }  // namespace cnn

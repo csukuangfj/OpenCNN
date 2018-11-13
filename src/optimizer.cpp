@@ -63,7 +63,7 @@ void Optimizer<Dtype>::update_parameters()
     int num_layers = layers.size();
 
     Dtype learning_rate = proto_.learning_rate();
-    learning_rate /= network_->get_batch_size();
+    // learning_rate /= network_->get_batch_size();
 
     // we skip the input layer since it has no parameters
     for (int i = 1; i < num_layers; i++)
