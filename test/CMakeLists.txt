@@ -14,6 +14,7 @@ add_executable(gtest
     test_full_connected_layer.cpp
     test_optimizer.cpp
     test_softmax_layer.cpp
+    test_log_loss_layer.cpp
     )
 target_link_libraries(
     gtest

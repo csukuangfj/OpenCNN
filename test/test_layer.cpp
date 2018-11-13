@@ -44,5 +44,13 @@ TYPED_TEST(LayerTest, create_softmax)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_log_loss)
+{
+    LayerProto proto;
+    proto.set_type(LOG_LOSS);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

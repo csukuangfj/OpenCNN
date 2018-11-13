@@ -26,6 +26,7 @@ add_library(
     src/array_math.cpp
     src/optimizer.cpp
     src/softmax_layer.cpp
+    src/log_loss_layer.cpp
     )
 target_link_libraries(
     core

@@ -3,18 +3,18 @@
 #include <vector>
 
 #include "cnn/array_math.hpp"
-#include "cnn/l2_loss_layer.hpp"
+#include "cnn/log_loss_layer.hpp"
 
 namespace cnn
 {
 template<typename Dtype>
-L2LossLayer<Dtype>::L2LossLayer(const LayerProto& _proto)
+LogLossLayer<Dtype>::LogLossLayer(const LayerProto& _proto)
     : Layer<Dtype>(_proto),
       loss_(0)
 {}
 
 template<typename Dtype>
-void L2LossLayer<Dtype>::reshape(
+void LogLossLayer<Dtype>::reshape(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<Array<Dtype>*>& top,
@@ -25,7 +25,11 @@ void L2LossLayer<Dtype>::reshape(
         << "input[0] is the predication and "
         << "input[1] is the ground truth";
 
-    CHECK(bottom[0]->has_same_shape(*bottom[1]));
+    CHECK_EQ(bottom[0]->n_, bottom[1]->n_);
+
+    CHECK_EQ(bottom[1]->c_, 1);
+    CHECK_EQ(bottom[0]->h_, bottom[1]->h_);
+    CHECK_EQ(bottom[0]->w_, bottom[1]->w_);
 
     CHECK_EQ(top.size(), 1);
     top[0]->init(1, 1, 1, 1);
@@ -43,22 +47,14 @@ void L2LossLayer<Dtype>::reshape(
 }
 
 template<typename Dtype>
-void L2LossLayer<Dtype>::fprop(
+void LogLossLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
-    loss_ =  ax_sub_by_squared<Dtype>(
-            bottom[0]->total_,
-            1, bottom[0]->d_,
-            1, bottom[1]->d_);
-
-    loss_ /= bottom[0]->total_;
-
-    top[0]->d_[0] = loss_;
 }
 
 template<typename Dtype>
-void L2LossLayer<Dtype>::bprop(
+void LogLossLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<const Array<Dtype>*>& top,
@@ -71,17 +67,10 @@ void L2LossLayer<Dtype>::bprop(
     (void) top;
     Dtype scale = 1;
 #endif
-    // TODO(fangjun) it can be optimized, i.e., with lapack or blas.
-    for (int i = 0; i < bottom[0]->total_; i++)
-    {
-        Dtype estimated_y = bottom[0]->d_[i];
-        Dtype true_y = bottom[1]->d_[i];
-
-        bottom_gradient[0]->d_[i] = scale * (estimated_y - true_y);
-    }
 }
 
-template class L2LossLayer<float>;
-template class L2LossLayer<double>;
+template class LogLossLayer<float>;
+template class LogLossLayer<double>;
 
 }  // namespace cnn
+

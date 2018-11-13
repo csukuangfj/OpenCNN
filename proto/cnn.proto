@@ -29,6 +29,7 @@ enum LayerType
     FULL_CONNECTED  = 1;        // full connected layer
     L2_LOSS         = 2;        // l2 loss layer, for regression only
     SOFTMAX         = 3;
+    LOG_LOSS        = 4;
 }
 
 // same as caffe
