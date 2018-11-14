@@ -1,0 +1,5 @@
+
+model_filename: "../examples/logistic_regression/model.prototxt"
+learning_rate: 0.0001
+max_iteration_num: 3000
+print_num: 1

@@ -86,6 +86,15 @@ void FullConnectedLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
+    std::ostringstream ss;
+    ss << "\n" << "fc fprop:\n";
+    ss << "input: " << bottom[0]->shape_info() << "\n";
+    for (int i = 0; i < bottom[0]->total_; i++)
+    {
+        ss << bottom[0]->d_[i] << " ";
+    }
+    ss << "\n";
+
     int n = bottom[0]->n_;
     for (int i = 0; i < n; i++)
     {
@@ -100,6 +109,14 @@ void FullConnectedLayer<Dtype>::fprop(
                 dot + this->param_[1]->operator[](j);
         }
     }
+
+    ss << "output: " << top[0]->shape_info() << "\n";
+    for (int i = 0; i < top[0]->total_; i++)
+    {
+        ss << top[0]->d_[i] << " ";
+    }
+    ss << "\n";
+    // LOG(INFO) << ss.str();
 }
 
 template<typename Dtype>
@@ -143,6 +160,15 @@ void FullConnectedLayer<Dtype>::bprop(
                     &dx[n*stride]);
         }
     }
+
+    std::ostringstream ss;
+    ss << "param gradient for fc: \n";
+    for (int i = 0; i < w.total_; i++)
+    {
+        ss << w.d_[i] << " ";
+    }
+    ss << "\n";
+    // LOG(INFO) << ss.str();
 }
 
 template class FullConnectedLayer<float>;

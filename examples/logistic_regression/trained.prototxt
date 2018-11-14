@@ -1,0 +1,45 @@
+layer_proto {
+  name: "input"
+  type: INPUT
+  top: "data"
+  top: "label"
+  input_proto {
+    n: 100
+    c: 1
+    h: 1
+    w: 2
+  }
+}
+layer_proto {
+  name: "fc1"
+  type: FULL_CONNECTED
+  bottom: "data"
+  top: "fc1"
+  param {
+    n: 1
+    c: 1
+    h: 2
+    w: 2
+    d: 0.1760312526239447
+    d: -0.0095169208861774247
+    d: 0.19624227744853706
+    d: 0.0018157958571402518
+  }
+  param {
+    n: 1
+    c: 1
+    h: 1
+    w: 2
+    d: 1.41450272773171
+    d: 0.020617683211582919
+  }
+  fc_proto {
+    num_output: 2
+  }
+}
+layer_proto {
+  name: "softmax_with_loss1"
+  type: SOFTMAX
+  bottom: "fc1"
+  top: "loss"
+}

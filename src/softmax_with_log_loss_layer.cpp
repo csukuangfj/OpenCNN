@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "cnn/array_math.hpp"
-#include "cnn/log_loss_layer.hpp"
+#include "cnn/softmax_with_log_loss_layer.hpp"
 
 // we use the same threshold as caffe for computing log()
 static float g_log_threshold = 1e-20;
@@ -12,17 +12,22 @@ static float g_log_threshold = 1e-20;
 namespace cnn
 {
 template<typename Dtype>
-LogLossLayer<Dtype>::LogLossLayer(const LayerProto& _proto)
+SoftmaxWithLogLossLayer<Dtype>::SoftmaxWithLogLossLayer(
+        const LayerProto& _proto)
     : Layer<Dtype>(_proto),
       loss_(0)
-{}
+{
+    LayerProto p;
+    p.set_type(SOFTMAX);
+    softmax_layer_ = Layer<Dtype>::create(p);
+}
 
 template<typename Dtype>
-void LogLossLayer<Dtype>::reshape(
+void SoftmaxWithLogLossLayer<Dtype>::reshape(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<Array<Dtype>*>& top,
-        const std::vector<Array<Dtype>*>& /*top_gradient*/)
+        const std::vector<Array<Dtype>*>& top_gradient)
 {
     CHECK_EQ(bottom.size(), 2)
         << "It should have two inputs where "
@@ -38,6 +43,13 @@ void LogLossLayer<Dtype>::reshape(
     CHECK_EQ(top.size(), 1);
     top[0]->init(1, 1, 1, 1);
 
+    softmax_layer_->reshape(
+            {bottom[0]},
+            {&softmax_bottom_gradient_},
+            {&softmax_top_},
+            {&softmax_top_gradient_}
+            );
+
     if (this->proto_.phase() == TRAIN)
     {
         CHECK_GE(bottom_gradient.size(), 1);
@@ -51,31 +63,17 @@ void LogLossLayer<Dtype>::reshape(
 }
 
 template<typename Dtype>
-void LogLossLayer<Dtype>::fprop(
+void SoftmaxWithLogLossLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
-    std::ostringstream ss;
-    ss << "\n" << "log loss fprop:\n";
-    ss << "input data: " << bottom[0]->shape_info() << "\n";
-    for (int i = 0; i < bottom[0]->total_; i++)
-    {
-        ss << bottom[0]->d_[i] << " ";
-    }
-    ss << "\n";
-
-    ss << "input lable: " << bottom[1]->shape_info() << "\n";
-    for (int i = 0; i < bottom[1]->total_; i++)
-    {
-        ss << bottom[1]->d_[i] << " ";
-    }
-    ss << "\n";
+    softmax_layer_->fprop({bottom[0]}, {&softmax_top_});
 
     loss_ = 0;
 
     auto& t = *top[0];
 
-    const auto& b0 = *bottom[0];
+    const auto& b0 = softmax_top_;
     const auto& b1 = *bottom[1];
 
     for (int n = 0; n < b1.n_; n++)
@@ -93,18 +91,10 @@ void LogLossLayer<Dtype>::fprop(
     loss_ /= b1.total_;     // take the average
 
     top[0]->d_[0] = loss_;
-
-    ss << "output: " << top[0]->shape_info() << "\n";
-    for (int i = 0; i < top[0]->total_; i++)
-    {
-        ss << top[0]->d_[i] << " ";
-    }
-    ss << "\n";
-    LOG(INFO) << ss.str();
 }
 
 template<typename Dtype>
-void LogLossLayer<Dtype>::bprop(
+void SoftmaxWithLogLossLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<const Array<Dtype>*>& top,
@@ -124,16 +114,24 @@ void LogLossLayer<Dtype>::bprop(
     auto& bg = *bottom_gradient[0];
 
     scale /= b1.total_;
-    for (int n = 0; n < b1.n_; n++)
-    for (int h = 0; h < b1.h_; h++)
-    for (int w = 0; w < b1.w_; w++)
+    for (int n = 0; n < b0.n_; n++)
+    for (int c = 0; c < b0.c_; c++)
+    for (int h = 0; h < b0.h_; h++)
+    for (int w = 0; w < b0.w_; w++)
     {
         auto label = b1(n, 0, h, w);
 
-        auto p = b0(n, label, h, w);    // probability for the predication
-        p = std::max(p, Dtype(g_log_threshold));
-        p = std::min(p, Dtype(1));
-        bg(n, label, h, w) = -scale / p;
+//        bg(n, c, h, w) = -scale * ((label == c) - softmax_top_(n, c, h, w));
+#if 1
+        if (label == c)
+        {
+            bg(n, c, h, w) = scale * (softmax_top_(n, c, h, w) - 1);
+        }
+        else
+        {
+            bg(n, c, h, w) = scale * softmax_top_(n, c, h, w);
+        }
+#endif
     }
 
     std::ostringstream ss;
@@ -144,11 +142,12 @@ void LogLossLayer<Dtype>::bprop(
         ss << bottom_gradient[0]->d_[i] << " ";
     }
     ss << "\n";
-    LOG(INFO) << ss.str();
+    // LOG(INFO) << ss.str();
 }
 
-template class LogLossLayer<float>;
-template class LogLossLayer<double>;
+template class SoftmaxWithLogLossLayer<float>;
+template class SoftmaxWithLogLossLayer<double>;
 
 }  // namespace cnn
+
 

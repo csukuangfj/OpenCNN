@@ -150,6 +150,10 @@ void Network<Dtype>::reshape()
                 get_gradient_bottom_mutable(i),
                 get_data_top_mutable(i),
                 get_gradient_top_mutable(i));
+        for (const auto& b : get_data_bottom(i))
+        {
+            LOG(INFO) << "  " << b->shape_info();
+        }
     }
 }
 
@@ -185,11 +189,22 @@ void Network<Dtype>::bprop()
         set_to<Dtype>(g.second.get(), 0);
     }
 
-    layers_.back()->bprop(
+    layers_[layers_.size()-1]->bprop(
             get_data_bottom(layers_.size() - 1),
             get_gradient_bottom_mutable(layers_.size() - 1),
-            get_data_top(0),
+            get_data_top(layers_.size() - 1),
             {});
+    std::ostringstream ss;
+    ss << "gradient for the last layer:\n";
+    const auto *g = get_gradient_bottom(layers_.size() - 1)[0];
+    for (int i = 0; i < g->total_; i++)
+    {
+        ss << g->d_[i] << " ";
+    }
+    ss << "\n";
+    // LOG(INFO) << ss.str();
+
+
     for (int i = layers_.size() - 2; i >= 1; i--)
     {
         layers_[i]->bprop(

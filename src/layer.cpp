@@ -6,6 +6,7 @@
 #include "cnn/layer.hpp"
 #include "cnn/log_loss_layer.hpp"
 #include "cnn/softmax_layer.hpp"
+#include "cnn/softmax_with_log_loss_layer.hpp"
 
 namespace cnn
 {
@@ -43,6 +44,7 @@ Layer<Dtype>::create(const LayerProto& _proto)
         CREATE_LAYER(L2_LOSS, L2LossLayer);
         CREATE_LAYER(SOFTMAX, SoftmaxLayer);
         CREATE_LAYER(LOG_LOSS, LogLossLayer);
+        CREATE_LAYER(SOFTMAX_WITH_LOG_LOSS, SoftmaxWithLogLossLayer);
 
         default:
             LOG(FATAL) << "Unknown layer type: "

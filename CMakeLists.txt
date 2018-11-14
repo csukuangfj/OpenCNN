@@ -27,6 +27,7 @@ add_library(
     src/optimizer.cpp
     src/softmax_layer.cpp
     src/log_loss_layer.cpp
+    src/softmax_with_log_loss_layer.cpp
     )
 target_link_libraries(
     core
