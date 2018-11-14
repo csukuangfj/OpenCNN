@@ -1,7 +1,7 @@
 
 #include <glog/logging.h>
 
-#include <fstream>
+#include <fstream>  // NOLINT
 #include <string>
 
 #include "cnn/array_math.hpp"

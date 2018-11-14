@@ -47,8 +47,7 @@ void SoftmaxWithLogLossLayer<Dtype>::reshape(
             {bottom[0]},
             {&softmax_bottom_gradient_},
             {&softmax_top_},
-            {&softmax_top_gradient_}
-            );
+            {&softmax_top_gradient_});
 
     if (this->proto_.phase() == TRAIN)
     {
@@ -127,7 +126,7 @@ void SoftmaxWithLogLossLayer<Dtype>::bprop(
         {
             bg(n, c, h, w) = scale * (softmax_top_(n, c, h, w) - 1);
         }
-        else
+        else    // NOLINT
         {
             bg(n, c, h, w) = scale * softmax_top_(n, c, h, w);
         }

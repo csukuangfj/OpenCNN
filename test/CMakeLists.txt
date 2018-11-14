@@ -16,6 +16,7 @@ add_executable(gtest
     test_softmax_layer.cpp
     test_log_loss_layer.cpp
     test_softmax_with_log_loss_layer.cpp
+    test_jet.cpp
     )
 target_link_libraries(
     gtest
