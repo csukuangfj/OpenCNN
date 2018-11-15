@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <vector>
 
-#include "cnn/common.hpp"
 #include "cnn/array_math.hpp"
+#include "cnn/common.hpp"
 #include "cnn/log_loss_layer.hpp"
 
 namespace cnn

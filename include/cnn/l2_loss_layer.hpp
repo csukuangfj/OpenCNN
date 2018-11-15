@@ -13,7 +13,7 @@ namespace cnn
  * \frac{1}{n} \sum_{i=0}^{n-1} (\mathrm{bottom}[0][i] - \mathrm{bottom}[1][i])^2
  *
  * bottom[0] is the predication and bottom[1] is the ground truth.
- * Both of them has the shape (N, C, H, W).
+ * Both of them have shape (N, C, H, W).
  */
 template<typename Dtype>
 class L2LossLayer : public Layer<Dtype>

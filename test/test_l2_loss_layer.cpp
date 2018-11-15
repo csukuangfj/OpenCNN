@@ -3,6 +3,7 @@
 
 #include "cnn/array_math.hpp"
 #include "cnn/layer.hpp"
+#include "cnn/jet.hpp"
 
 namespace cnn
 {
@@ -29,9 +30,8 @@ protected:
 using MyTypes = ::testing::Types<float, double>;
 TYPED_TEST_CASE(L2LossLayerTest, MyTypes);
 
-TYPED_TEST(L2LossLayerTest, reshape)
+TYPED_TEST(L2LossLayerTest, reshape_train_phase)
 {
-    // the train phase
     this->layer_->proto().set_phase(TRAIN);
     this->bottom1_.init(2, 3, 4, 5);
     this->bottom2_.init_like(this->bottom1_);
@@ -45,17 +45,27 @@ TYPED_TEST(L2LossLayerTest, reshape)
     EXPECT_TRUE(this->bottom1_gradient_.has_same_shape(this->bottom1_));
     EXPECT_TRUE(this->top_.has_same_shape({1, 1, 1, 1}));
 
-    // now the test phase, no gradient memory should be allocated
+    EXPECT_TRUE(this->layer_->param().empty());
+    EXPECT_TRUE(this->layer_->gradient().empty());
+}
+
+TYPED_TEST(L2LossLayerTest, reshape_test_phase)
+{
     this->layer_->proto().set_phase(TEST);
-    this->bottom1_gradient_.init(0, 0, 0, 0);
-    this->top_.init(0, 0, 0, 0);
+    this->bottom1_.init(2, 3, 4, 5);
+    this->bottom2_.init_like(this->bottom1_);
+
     this->layer_->reshape(
             {&this->bottom1_, &this->bottom2_},
             {&this->bottom1_gradient_},
             {&this->top_},
             {});
-    EXPECT_TRUE(this->bottom1_gradient_.has_same_shape({0, 0, 0, 0}));
+
     EXPECT_TRUE(this->top_.has_same_shape({1, 1, 1, 1}));
+    EXPECT_TRUE(this->bottom1_gradient_.has_same_shape({0, 0, 0, 0}));
+
+    EXPECT_TRUE(this->layer_->param().empty());
+    EXPECT_TRUE(this->layer_->gradient().empty());
 }
 
 TYPED_TEST(L2LossLayerTest, fprop)
@@ -84,50 +94,55 @@ TYPED_TEST(L2LossLayerTest, fprop)
     EXPECT_NEAR(this->top_[0], TypeParam(n)/this->bottom1_.total_, 1e-4);
 }
 
-TYPED_TEST(L2LossLayerTest, bprop)
+TYPED_TEST(L2LossLayerTest, bprop_with_jet)
 {
-    this->bottom1_.init(2, 5, 3, 4);
-    this->bottom2_.init(2, 5, 3, 4);
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = N*C*H*W;
 
-    set_to<TypeParam>(&this->bottom1_, 2);
-    set_to<TypeParam>(&this->bottom2_, 2);
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(L2_LOSS);
+    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
 
-    int n = uniform(1, this->bottom1_.total_-1);
-    for (int i = 0; i < n; i++)
+    using Type = Jet<TypeParam, DIM>;
+
+    Array<Type> bottom1;
+    Array<Type> bottom2;
+    Array<Type> bottom1_gradient;
+    Array<Type> top;
+
+    bottom1.init(N, C, H, W);
+    bottom2.init(N, C, H, W);
+
+    uniform<Type>(&bottom1, -100, 100);
+    uniform<Type>(&bottom2, -100, 100);
+    for (int i = 0; i < bottom1.total_; i++)
     {
-        this->bottom2_[i] = 1;
+        bottom1.d_[i].v_[i] = 1;
     }
 
-    this->layer_->reshape(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->bottom1_gradient_},
-            {&this->top_},
+    layer->reshape(
+            {&bottom1, &bottom2},
+            {&bottom1_gradient},
+            {&top},
             {});
 
-    this->layer_->fprop(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->top_});
-
-    this->layer_->bprop(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->bottom1_gradient_},
-            {&this->top_},
+    layer->fprop({&bottom1, &bottom2}, {&top});
+    layer->bprop(
+            {&bottom1, &bottom2},
+            {&bottom1_gradient},
+            {&top},
             {});
 
-    TypeParam expected = TypeParam(1)/this->bottom1_.total_;
-    for (int i = 0; i < this->bottom1_gradient_.total_; i++)
+    for (int i = 0; i < bottom1.total_; i++)
     {
-        if (i < n)
-        {
-            EXPECT_EQ(this->bottom1_gradient_[i], expected);
-        }
-        else
-        {
-            EXPECT_EQ(this->bottom1_gradient_[i], 0);
-        }
+        EXPECT_NEAR(bottom1_gradient[i].a_,
+                  top[0].v_[i], 1e-5);
     }
 }
-
 
 }  // namespace cnn
 

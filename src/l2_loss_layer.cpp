@@ -73,6 +73,7 @@ void L2LossLayer<Dtype>::bprop(
 #endif
 
     scale /= bottom[0]->total_;
+    scale *= 2;  // for the derivative of a squared loss
     // TODO(fangjun) it can be optimized, i.e., with lapack or blas.
     for (int i = 0; i < bottom[0]->total_; i++)
     {
