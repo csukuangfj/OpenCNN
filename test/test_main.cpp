@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <iostream>
-
 #include <glog/logging.h>
 
 #include "gtest/gtest.h"
@@ -50,7 +48,7 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*jet*";
     // ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*";
-    ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*jet*";
+    // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*jet*";
     // ::testing::GTEST_FLAG(filter) = "io_test*";
     // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
