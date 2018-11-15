@@ -11,8 +11,9 @@ namespace cnn
  * Softmax + log loss.
  *
  * Motivation:
- *  (1/y) * (y - y*y) does not equal to (1 - y)
- *  when y is close to 0!!! I learn this by hard.
+ *  -(1/y) * (y - y*y) does not equal to -(1 - y)
+ *  when y is close to 0 from a programmer's perspective
+ *  of view!!! I learn this by hard.
  *  It causes gradient to be 0 when y is tiny,
  *  i.e., the vanishing gradient problem.
  *
@@ -26,13 +27,13 @@ namespace cnn
  * as the size of an image. (3) C represents the number of channels
  * of the image; in the case of multi-class classification, C
  * is the number of classes we have and the meaning of each pixel
- * in the channel k indicates the probability that this pixel belongs
- * to class k.
+ * in the channel k indicates the probability to the k-th category
+ * this pixel belongs.
  *
  * The user has to ensure that the pixel values are in
  * the range of [0, 1] and it is normalized, i.e., sum to 1.
  *
- * This layer lays usually on top of the softmax layer.
+ * This layer lays usually on top of the full connected layer.
  *
  * bottom[1] is the ground truth and has the shape (N, 1, H, W).
  * values of every element in bottom[1] have to be an integer

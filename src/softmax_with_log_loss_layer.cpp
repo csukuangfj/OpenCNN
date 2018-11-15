@@ -68,8 +68,6 @@ void SoftmaxWithLogLossLayer<Dtype>::fprop(
 
     loss_ = 0;
 
-    // auto& t = *top[0];
-
     const auto& b0 = softmax_top_;
     const auto& b1 = *bottom[1];
 
@@ -82,10 +80,11 @@ void SoftmaxWithLogLossLayer<Dtype>::fprop(
         p = std::max(p, Dtype(g_log_threshold));
         p = std::min(p, Dtype(1));
 
-        loss_ += -std::log(p);
+        // use cnn::log() here for Jet in the unit test.
+        loss_ += log(p);
     }
 
-    loss_ /= b1.total_;     // take the average
+    loss_ /= Dtype(-1) * b1.total_;     // take the average
 
     top[0]->d_[0] = loss_;
 }
@@ -94,52 +93,26 @@ template<typename Dtype>
 void SoftmaxWithLogLossLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
-        const std::vector<const Array<Dtype>*>& top,
+        const std::vector<const Array<Dtype>*>& /*top*/,
         const std::vector<const Array<Dtype>*>& /*top_gradient*/)
 {
-    // top[0] is the loss
-#if 0
-    Dtype scale = top[0]->d_[0];
-#else
-    (void) top;
-    Dtype scale = 1;
-#endif
-
-    // const auto& t = *top[0];
     const auto& b0 = *bottom[0];
     const auto& b1 = *bottom[1];
     auto& bg = *bottom_gradient[0];
 
+    Dtype scale = -1;
     scale /= b1.total_;
+
     for (int n = 0; n < b0.n_; n++)
-    for (int c = 0; c < b0.c_; c++)
     for (int h = 0; h < b0.h_; h++)
     for (int w = 0; w < b0.w_; w++)
     {
         auto label = b1(n, 0, h, w);
-
-//        bg(n, c, h, w) = -scale * ((label == c) - softmax_top_(n, c, h, w));
-#if 1
-        if (label == c)
+        for (int c = 0; c < b0.c_; c++)
         {
-            bg(n, c, h, w) = scale * (softmax_top_(n, c, h, w) - 1);
+            bg(n, c, h, w) = scale * ((label == c) - softmax_top_(n, c, h, w));
         }
-        else    // NOLINT
-        {
-            bg(n, c, h, w) = scale * softmax_top_(n, c, h, w);
-        }
-#endif
     }
-
-    std::ostringstream ss;
-    ss << "log loss bottom gradient: "
-       << bottom_gradient[0]->shape_info() << "\n";
-    for (int i = 0; i < bottom_gradient[0]->total_; i++)
-    {
-        ss << bottom_gradient[0]->d_[i] << " ";
-    }
-    ss << "\n";
-    // LOG(INFO) << ss.str();
 }
 
 }  // namespace cnn

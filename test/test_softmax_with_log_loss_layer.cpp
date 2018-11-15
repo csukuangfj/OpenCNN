@@ -131,104 +131,67 @@ TYPED_TEST(SoftmaxWithLogLossLayerTest, fprop)
 
     expected /= 4;
 
-    LOG(INFO) << "loss is: " << this->top_[0];
-    LOG(INFO) << "expected is : " << this->top_[0];
+    // LOG(INFO) << "loss is: " << this->top_[0];
+    // LOG(INFO) << "expected is : " << this->top_[0];
 
     EXPECT_NEAR(this->top_[0], expected, 1e-5);
 }
 
-TYPED_TEST(SoftmaxWithLogLossLayerTest, bprop)
+TYPED_TEST(SoftmaxWithLogLossLayerTest, bprop_with_jet)
 {
-    this->layer_->proto().set_phase(TRAIN);
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = N*C*H*W;
 
-    this->bottom1_.init(2, 2, 1, 2);
-    this->bottom2_.init(2, 1, 1, 2);
+    using Type = Jet<TypeParam, DIM>;
 
-    this->layer_->reshape(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->bottom1_gradient_},
-            {&this->top_},
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(SOFTMAX_WITH_LOG_LOSS);
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom1;
+    Array<Type> bottom2;
+    Array<Type> bottom1_gradient;
+    Array<Type> top;
+
+    bottom1.init(N, C, H, W);
+    bottom2.init(N, 1, H, W);
+
+    // the test might be broken for float types if the values in
+    // bottom1 vary significantly, i.e., from 20 to 50
+    // that is, uniform<Type>(&bottom1, 20, 50);
+    // fails for float, but fine for double
+    uniform<Type>(&bottom1, 2, 8);
+    uniform<Type>(&bottom2, 0, C-1);  // labels are in the range [0, C-1]
+
+    for (int i = 0; i < bottom1.total_; i++)
+    {
+        bottom1[i].v_[i] = 1;
+    }
+
+    layer->reshape(
+            {&bottom1, &bottom2},
+            {&bottom1_gradient},
+            {&top},
             {});
-    auto& b1 = this->bottom1_;
-    auto& b2 = this->bottom2_;
 
-/*
- * input
- * batch 0
- * 3 5
- * 6 2
- *
- * batch 1
- * -2  1
- * 8  10
- *
- * after the softmax operation,
- * 0.0474259 0.952574
- * 0.952574 0.0474259
- *
- * 4.53979e-05 0.000123395
- * 0.999955 0.999877
- *
- * ground truth
- *
- * batch 0
- *
- * 0  1
- *
- * batch 1
- * 1  1
- */
-    b1[0] = TypeParam(3);
-    b1[1] = TypeParam(5);
-    b1[2] = TypeParam(6);
-    b1[3] = TypeParam(2);
+    layer->fprop(
+            {&bottom1, &bottom2},
+            {&top});
 
-    b1[4] = TypeParam(-2);
-    b1[5] = TypeParam(1);
-    b1[6] = TypeParam(8);
-    b1[7] = TypeParam(10);
-
-    b2[0] = 0;
-    b2[1] = 1;
-    b2[2] = 1;
-    b2[3] = 1;
-
-    this->layer_->fprop(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->top_});
-
-
-    this->layer_->bprop(
-            {&this->bottom1_, &this->bottom2_},
-            {&this->bottom1_gradient_},
-            {&this->top_},
+    layer->bprop(
+            {&bottom1, &bottom2},
+            {&bottom1_gradient},
+            {&top},
             {});
-    const auto& bg = this->bottom1_gradient_;
-
-    TypeParam scale = TypeParam(1.)/4;
-/*
- *
- *
- * after the softmax operation,
- * 0.0474259 0.952574
- * 0.952574 0.0474259
- *
- * 4.53979e-05 0.000123395
- * 0.999955 0.999877
- */
-
-    // batch 0
-    EXPECT_NEAR(bg[0], scale * (0.0474259 - 1), 1e-5);
-    EXPECT_NEAR(bg[1], scale*0.952574, 1e-5);
-    EXPECT_NEAR(bg[2], scale*0.952574, 1e-5);
-    EXPECT_NEAR(bg[3], scale*(0.0474259 - 1), 1e-5);
-
-    EXPECT_NEAR(bg[4], scale * 4.53979e-5, 1e-5);
-    EXPECT_NEAR(bg[5], scale*0.000123395, 1e-5);
-    EXPECT_NEAR(bg[6], scale*(0.999955 - 1), 1e-5);
-    EXPECT_NEAR(bg[7], scale*(0.999877 - 1), 1e-5);
+    for (int i = 0; i < bottom1_gradient.total_; i++)
+    {
+        EXPECT_NEAR(bottom1_gradient[i].a_, top[0].v_[i], 1e-5);
+    }
 }
 
-}  // cnn
-
+} // namespace cnn
 
