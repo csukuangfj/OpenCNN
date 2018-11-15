@@ -83,7 +83,4 @@ void L2LossLayer<Dtype>::bprop(
     }
 }
 
-template class L2LossLayer<float>;
-template class L2LossLayer<double>;
-
 }  // namespace cnn

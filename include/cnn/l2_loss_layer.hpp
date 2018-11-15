@@ -49,3 +49,5 @@ class L2LossLayer : public Layer<Dtype>
 };
 
 }  // namespace cnn
+
+#include "../../src/l2_loss_layer.cpp"

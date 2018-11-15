@@ -4,6 +4,7 @@
 
 #include "cnn/array_math.hpp"
 #include "cnn/full_connected_layer.hpp"
+#include "cnn/jet.hpp"
 
 namespace cnn
 {
@@ -26,10 +27,7 @@ void FullConnectedLayer<Dtype>::reshape(
     CHECK_EQ(top.size(), 1);
 
     int n = bottom[0]->n_;
-    int c = num_output_;
-    int h = 1;
-    int w = 1;
-    top[0]->init(n, c, h, w);
+    top[0]->init(n, num_output_, 1, 1);
 
     if (this->param_.empty())
     {
@@ -60,7 +58,7 @@ void FullConnectedLayer<Dtype>::reshape(
 
     if (this->proto().phase() == TRAIN)
     {
-        // gradient for the parameters
+        // gradient for parameters
         this->gradient_.resize(2);
         this->gradient_[0].reset(new Array<Dtype>);
         this->gradient_[1].reset(new Array<Dtype>);
@@ -77,7 +75,7 @@ void FullConnectedLayer<Dtype>::reshape(
 
         // gradient for the top input
         CHECK_EQ(top_gradient.size(), 1);
-        top_gradient[0]->init(n, 1, 1, num_output_);
+        top_gradient[0]->init_like(*top[0]);
     }
 }
 
@@ -143,7 +141,7 @@ void FullConnectedLayer<Dtype>::bprop(
     {
         for (int i = 0; i < num_output_; i++)
         {
-            Dtype scale = dy(n, 0, 0, i);
+            Dtype scale = dy(n, i, 0, 0);
             ax_plus_by<Dtype>(stride,
                     scale,
                     &x[n*stride],
@@ -170,9 +168,6 @@ void FullConnectedLayer<Dtype>::bprop(
     ss << "\n";
     // LOG(INFO) << ss.str();
 }
-
-template class FullConnectedLayer<float>;
-template class FullConnectedLayer<double>;
 
 }  // namespace cnn
 

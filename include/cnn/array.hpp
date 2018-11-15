@@ -55,3 +55,5 @@ class Array
 };
 
 }  // namespace cnn
+
+#include "../../src/array.cpp"

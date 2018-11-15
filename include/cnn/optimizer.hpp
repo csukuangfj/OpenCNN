@@ -37,3 +37,5 @@ class Optimizer
 };
 
 }  // namespace cnn
+
+#include "../../src/optimizer.cpp"

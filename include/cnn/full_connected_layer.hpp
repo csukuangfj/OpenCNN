@@ -14,8 +14,8 @@ namespace cnn
  * param[0] has the shape (1, 1, M, K) where K equals to C*H*W
  * and param[1] has shape (1, 1, 1, M).
  *
- * param[0] is the weight parameters for inner product
- * and param[1] is the bias.
+ * param[0] contains weight parameters for inner product
+ * and param[1] contains corresponding biases.
  */
 template<typename Dtype>
 class FullConnectedLayer : public Layer<Dtype>
@@ -42,4 +42,7 @@ class FullConnectedLayer : public Layer<Dtype>
     int num_output_;
 };
 
+
 }  // namespace cnn
+
+#include "../../src/full_connected_layer.cpp"

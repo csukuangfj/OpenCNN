@@ -3,7 +3,7 @@
 
 #define private public
 
-#include "cnn/input_layer.hpp"
+#include "cnn/layer.hpp"
 
 namespace cnn
 {

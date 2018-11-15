@@ -100,7 +100,14 @@ class Jet
     {
         a_ = a;
         v_.fill(0);
-        v_.at(i) = Dtype(value);
+        v_.at(i) = value;
+    }
+
+    void set(const Dtype& a, int i, Dtype value = 1)
+    {
+        a_ = a;
+        v_.fill(0);
+        v_.at(i) = value;
     }
 
     std::string to_string() const
@@ -132,6 +139,11 @@ class Jet
     {
         *this = *this / f;
         return *this;
+    }
+
+    operator Dtype() const
+    {
+        return a_;
     }
 
     Dtype a_;                   //!< value
@@ -203,6 +215,7 @@ Jet<Dtype, N> operator * (const Jet<Dtype, N>& f, Dtype s)
     Jet<Dtype, N> res;
     res.a_ = f.a_ * s;
     res.v_ = f.v_ * s;
+    return res;
 }
 
 template<typename Dtype, int N>
@@ -211,6 +224,7 @@ Jet<Dtype, N> operator * (Dtype s, const Jet<Dtype, N>& f)
     Jet<Dtype, N> res;
     res.a_ = f.a_ * s;
     res.v_ = f.v_ * s;
+    return res;
 }
 
 template<typename Dtype, int N>
@@ -219,6 +233,7 @@ Jet<Dtype, N> operator / (const Jet<Dtype, N>& f, Dtype s)
     Jet<Dtype, N> res;
     res.a_ = f.a_ / s;
     res.v_ = f.v_ / s;
+    return res;
 }
 
 template<typename Dtype, int N>
@@ -226,7 +241,8 @@ Jet<Dtype, N> operator / (Dtype s, const Jet<Dtype, N>& f)
 {
     Jet<Dtype, N> res;
     res.a_ = s / f.a_;
-    res.v_ = - s * f.v / (f.a_ * f.a_);
+    res.v_ = - s * f.v_ / (f.a_ * f.a_);
+    return res;
 }
 
 template<typename Dtype, int N>
@@ -264,6 +280,31 @@ Jet<Dtype, N> operator / (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
     res.v_ = f.v_ / g.a_ - (f.a_/(g.a_*g.a_))*g.v_;
     return res;
 }
+
+template<typename Dtype, int N>
+bool operator == (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ == g.a_;}
+
+template<typename Dtype, int N>
+bool operator != (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ != g.a_;}
+
+template<typename Dtype, int N>
+bool operator < (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ < g.a_;}
+
+template<typename Dtype, int N>
+bool operator <= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ <= g.a_;}
+
+template<typename Dtype, int N>
+bool operator > (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ > g.a_;}
+
+template<typename Dtype, int N>
+bool operator >= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
+{return f.a_ >= g.a_;}
+
 
 }  // namespace cnn
 

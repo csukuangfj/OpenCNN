@@ -114,3 +114,5 @@ class Layer
 };
 
 }  // namespace cnn
+
+#include "../../src/layer.cpp"

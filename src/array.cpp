@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "cnn/array.hpp"
+#include "cnn/jet.hpp"
 
 namespace cnn
 {
@@ -183,8 +184,5 @@ void Array<Dtype>::to_proto(ArrayProto* proto) const
         proto->add_d(d_[i]);
     }
 }
-
-template class Array<float>;
-template class Array<double>;
 
 }  // namespace cnn

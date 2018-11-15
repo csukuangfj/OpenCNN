@@ -87,8 +87,5 @@ void InputLayer<Dtype>::fprop(
     }
 }
 
-template class InputLayer<float>;
-template class InputLayer<double>;
-
 }  // namespace cnn
 

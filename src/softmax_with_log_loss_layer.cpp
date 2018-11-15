@@ -1,16 +1,14 @@
-#include <glog/logging.h>
 
 #include <algorithm>
 #include <vector>
 
 #include "cnn/array_math.hpp"
+#include "cnn/common.hpp"
 #include "cnn/softmax_with_log_loss_layer.hpp"
-
-// we use the same threshold as caffe for computing log()
-static float g_log_threshold = 1e-20;
 
 namespace cnn
 {
+
 template<typename Dtype>
 SoftmaxWithLogLossLayer<Dtype>::SoftmaxWithLogLossLayer(
         const LayerProto& _proto)
@@ -27,7 +25,7 @@ void SoftmaxWithLogLossLayer<Dtype>::reshape(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<Array<Dtype>*>& top,
-        const std::vector<Array<Dtype>*>& top_gradient)
+        const std::vector<Array<Dtype>*>& /*top_gradient*/)
 {
     CHECK_EQ(bottom.size(), 2)
         << "It should have two inputs where "
@@ -70,7 +68,7 @@ void SoftmaxWithLogLossLayer<Dtype>::fprop(
 
     loss_ = 0;
 
-    auto& t = *top[0];
+    // auto& t = *top[0];
 
     const auto& b0 = softmax_top_;
     const auto& b1 = *bottom[1];
@@ -107,7 +105,7 @@ void SoftmaxWithLogLossLayer<Dtype>::bprop(
     Dtype scale = 1;
 #endif
 
-    const auto& t = *top[0];
+    // const auto& t = *top[0];
     const auto& b0 = *bottom[0];
     const auto& b1 = *bottom[1];
     auto& bg = *bottom_gradient[0];
@@ -143,9 +141,6 @@ void SoftmaxWithLogLossLayer<Dtype>::bprop(
     ss << "\n";
     // LOG(INFO) << ss.str();
 }
-
-template class SoftmaxWithLogLossLayer<float>;
-template class SoftmaxWithLogLossLayer<double>;
 
 }  // namespace cnn
 

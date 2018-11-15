@@ -2,6 +2,7 @@
 
 #include "cnn/full_connected_layer.hpp"
 #include "cnn/input_layer.hpp"
+#include "cnn/jet.hpp"
 #include "cnn/l2_loss_layer.hpp"
 #include "cnn/layer.hpp"
 #include "cnn/log_loss_layer.hpp"
@@ -57,9 +58,6 @@ Layer<Dtype>::create(const LayerProto& _proto)
     CHECK_NOTNULL(res.get());
     return res;
 }
-
-template class Layer<float>;
-template class Layer<double>;
 
 }  // namespace cnn
 

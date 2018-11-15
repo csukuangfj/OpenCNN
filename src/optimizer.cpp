@@ -146,7 +146,4 @@ void Optimizer<Dtype>::print_parameters()
     LOG(INFO) << ss.str();
 }
 
-template class Optimizer<float>;
-template class Optimizer<double>;
-
 }  // namespace cnn

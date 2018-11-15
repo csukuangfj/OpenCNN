@@ -69,3 +69,5 @@ class SoftmaxWithLogLossLayer : public Layer<Dtype>
 
 }  // namespace cnn
 
+#include "../../src/softmax_with_log_loss_layer.cpp"
+

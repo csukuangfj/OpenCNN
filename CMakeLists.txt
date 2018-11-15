@@ -16,18 +16,19 @@ add_subdirectory(proto)
 
 add_library(
     core STATIC
-    src/array.cpp
     src/io.cpp
-    src/layer.cpp
-    src/full_connected_layer.cpp
-    src/input_layer.cpp
-    src/network.cpp
-    src/l2_loss_layer.cpp
-    src/array_math.cpp
-    src/optimizer.cpp
-    src/softmax_layer.cpp
-    src/log_loss_layer.cpp
-    src/softmax_with_log_loss_layer.cpp
+    src/rng.cpp
+    # src/array.cpp
+    # src/layer.cpp
+    # src/full_connected_layer.cpp
+    # src/input_layer.cpp
+    # src/network.cpp
+    # src/l2_loss_layer.cpp
+    # src/array_math.cpp
+    # src/optimizer.cpp
+    # src/softmax_layer.cpp
+    # src/log_loss_layer.cpp
+    # src/softmax_with_log_loss_layer.cpp
     )
 target_link_libraries(
     core

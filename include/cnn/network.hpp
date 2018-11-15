@@ -106,3 +106,5 @@ class Network
 
 }  // namespace cnn
 
+#include "../../src/network.cpp"
+

@@ -2,7 +2,8 @@
 #include <gtest/gtest.h>
 
 #include "cnn/array_math.hpp"
-#include "cnn/full_connected_layer.hpp"
+#include "cnn/layer.hpp"
+#include "cnn/jet.hpp"
 
 namespace cnn
 {
@@ -36,8 +37,7 @@ TYPED_TEST(FullConnectedLayerTest, reshape_train_phase)
 {
     this->layer_->proto().set_phase(TRAIN);
 
-    int n = 2;  // batch size
-    this->bottom_.init(n, 3, 4, 5);
+    this->bottom_.init(2, 3, 4, 5);
     this->layer_->reshape(
             {&this->bottom_},
             {&this->bottom_gradient_},
@@ -45,9 +45,9 @@ TYPED_TEST(FullConnectedLayerTest, reshape_train_phase)
             {&this->top_gradient_});
 
     EXPECT_TRUE(this->bottom_gradient_.has_same_shape(this->bottom_));
-    EXPECT_TRUE(this->top_.has_same_shape({n, this->num_output_, 1, 1}));
+    EXPECT_TRUE(this->top_.has_same_shape({2, this->num_output_, 1, 1}));
     EXPECT_TRUE(this->top_gradient_.has_same_shape(
-                {n, 1, 1, this->num_output_}));
+                {2, this->num_output_, 1, 1}));
 
     EXPECT_TRUE(this->layer_->param()[0]->has_same_shape(
                 {1, 1, this->num_output_, 3*4*5}));
@@ -169,6 +169,235 @@ TYPED_TEST(FullConnectedLayerTest, fprop)
     EXPECT_EQ(expected11, this->top_[3]);
 }
 
+TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_input2)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 5;
+    static constexpr int W = 4;
+    static constexpr int DIM = C*H*W;
+
+    this->num_output_ = 6;
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(FULL_CONNECTED);
+    proto.mutable_fc_proto()->set_num_output(this->num_output_);
+    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
+
+    using Type = Jet<TypeParam, DIM>;
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+
+    uniform<Type>(&bottom, -100, 100);
+    for (int n = 0; n < N; n++)
+    for (int i = 0; i < DIM; i++)
+    {
+        bottom.d_[n*DIM + i].v_[i] = 1;
+    }
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+    uniform<Type>(&top_gradient, -100, 100);
+    layer->fprop({&bottom}, {&top});
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    for (int n = 0; n < N; n++)
+    for (int i = 0; i < DIM; i++)
+    {
+        TypeParam expected = 0;
+        for (int k = 0; k < this->num_output_; k++)
+        {
+            expected += top[n*this->num_output_ + k].v_[i] *
+                top_gradient[n*this->num_output_ + k].a_;
+        }
+        EXPECT_NEAR(bottom_gradient[n*DIM + i], expected, 1e-5);
+    }
+}
+
+TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_parameters)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = C*H*W;
+
+    this->num_output_ = 6;
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(FULL_CONNECTED);
+    proto.mutable_fc_proto()->set_num_output(this->num_output_);
+    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
+
+    using Type = Jet<TypeParam, DIM>;
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+
+    uniform<Type>(&bottom, -100, 100);
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    uniform<Type>(&top_gradient, -100, 100);
+
+    // test each row of the weight matrix
+    for (int k = 0; k < this->num_output_; k++)
+    {
+        auto& w = *layer->mutable_param()[0];
+        auto &dw = *layer->mutable_gradient()[0];
+        set_to<Type>(&dw, 0);
+
+        gaussian<Type>(&w, 0, 1);
+
+        for (int i = 0; i < DIM; i++)
+        {
+            w[k*DIM + i].v_[i] = 1;
+        }
+
+        layer->fprop({&bottom}, {&top});
+        layer->bprop(
+                {&bottom},
+                {&bottom_gradient},
+                {&top},
+                {&top_gradient});
+
+        for (int i = 0; i < DIM; i++)
+        {
+            TypeParam expected = 0;
+            for (int n = 0; n < N; n++)
+            {
+
+                expected += top[n*this->num_output_ + k].v_[i] *
+                    top_gradient[n*this->num_output_ + k].a_;
+
+            }
+            EXPECT_NEAR(dw[k*DIM + i].a_, expected, 1e-5);
+        }
+    }
+
+
+    // we have to clear the effect of the weight matrix
+    // since it occupies the same dual number space with
+    // the bias
+    auto& w = *layer->mutable_param()[0];
+    gaussian<Type>(&w, 0, 1);
+
+    // test each row of the bias
+    for (int k = 0; k < this->num_output_; k++)
+    {
+        auto& b = *layer->mutable_param()[1];
+
+        auto &db = *layer->mutable_gradient()[1];
+        set_to<Type>(&db, 0);
+
+        gaussian<Type>(&b, 0, 1);
+
+        b[k].v_[0] = 1;
+
+        layer->fprop({&bottom}, {&top});
+        layer->bprop(
+                {&bottom},
+                {&bottom_gradient},
+                {&top},
+                {&top_gradient});
+
+        TypeParam expected = 0;
+        for (int n = 0; n < N; n++)
+        {
+
+            expected += top[n*this->num_output_ + k].v_[0] *
+                top_gradient[n*this->num_output_ + k].a_;
+
+        }
+        EXPECT_NEAR(db[k].a_, expected, 1e-5);
+    }
+}
+
+// TODO(fangjun) remove this test since it is covered by other general tests;
+// it is here only for better understanding of the autodiff for back propagation
+TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_input)
+{
+    this->num_output_ = 2;
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(FULL_CONNECTED);
+    proto.mutable_fc_proto()->set_num_output(this->num_output_);
+    auto layer = Layer<Jet<TypeParam, 3>>::create(proto);
+
+    Array<Jet<TypeParam, 3>> bottom;
+    Array<Jet<TypeParam, 3>> bottom_gradient;
+    Array<Jet<TypeParam, 3>> top;
+    Array<Jet<TypeParam, 3>> top_gradient;
+
+    bottom.init(2, 1, 1, 3);
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    bottom(0, 0, 0, 0).set(1, 0);
+    bottom(0, 0, 0, 1).set(-1, 1);
+    bottom(0, 0, 0, 2).set(2, 2);
+
+    bottom(1, 0, 0, 0).set(-3, 0);
+    bottom(1, 0, 0, 1).set(1, 1);
+    bottom(1, 0, 0, 2).set(2, 2);
+
+    auto& w = *layer->mutable_param()[0];
+    w[0] = 1;
+    w[1] = 2;
+    w[2] = -1;
+    w[3] = -1;
+    w[4] = 2;
+    w[5] = -2;
+
+    auto& b = *layer->mutable_param()[1];
+    b[0] = 5;
+    b[1] = 10;
+
+    top_gradient[0] = 1;
+    top_gradient[1] = 2;
+    top_gradient[2] = 3;
+    top_gradient[3] = 4;
+
+    layer->fprop({&bottom}, {&top});
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    for (int n = 0; n < 2; n++)
+    for (int i = 0; i < 3; i++)
+    {
+        EXPECT_EQ(bottom_gradient[n*3 + i].a_,
+                top[n*2 + 0].v_[i] * top_gradient[n*2 + 0].a_ +
+                top[n*2 + 1].v_[i] * top_gradient[n*2 + 1].a_);
+    }
+}
+
+// TODO(fangjun) remove this test since it is covered by other general tests
 TYPED_TEST(FullConnectedLayerTest, bprop)
 {
     this->num_output_ = 2;
@@ -276,54 +505,6 @@ TYPED_TEST(FullConnectedLayerTest, bprop)
 
     expected = dy[2]*w[2] + dy[3]*w[5];
     EXPECT_EQ(dx[5], expected);   // -11
-
-#if 0
-    std::ostringstream ss;
-    ss << "\nw:\n";
-    auto &w2 = *this->layer_->param()[0];
-    for (int i = 0; i < w2.total_; i++)
-    {
-        if (i && i%3 == 0) ss << "\n";
-        ss << w2[i] << " ";
-    }
-
-    ss << "\nx:\n";
-    for (int i = 0; i < this->bottom_.total_; i++)
-    {
-        if (i && i%3 == 0) ss << "\n";
-        ss << this->bottom_[i] << " ";
-    }
-
-    ss << "\ntop:\n";
-    for (int i = 0; i < this->top_.total_; i++)
-    {
-        ss << this->top_[i] << " ";
-    }
-    ss << "\ntop gradient:\n";
-    for (int i = 0; i < this->top_gradient_.total_; i++)
-    {
-        ss << this->top_gradient_[i] << " ";
-    }
-
-    ss << "\nbottom gradient:\n";
-    for (int i = 0; i < this->bottom_gradient_.total_; i++)
-    {
-        ss << this->bottom_gradient_[i] << " ";
-    }
-
-    LOG(INFO) << ss.str();
-
-    for (int i = 0; i < dw.total_; i++)
-    {
-        LOG(INFO) << "dw[" << i << "]" << dw[i];
-    }
-
-    for (int i = 0; i < db.total_; i++)
-    {
-        LOG(INFO) << "db[" << i << "]" << db[i];
-    }
-#endif
 }
-
 
 }  // namespace cnn

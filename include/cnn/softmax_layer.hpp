@@ -46,3 +46,5 @@ class SoftmaxLayer : public Layer<Dtype>
 };
 
 }  // namespace cnn
+
+#include "../../src/softmax_layer.cpp"

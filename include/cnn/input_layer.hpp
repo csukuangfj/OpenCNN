@@ -37,3 +37,5 @@ class InputLayer : public Layer<Dtype>
 };
 
 }  // namespace cnn
+
+#include "../../src/input_layer.cpp"

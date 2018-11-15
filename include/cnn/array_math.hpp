@@ -1,5 +1,7 @@
 #pragma once
 
+#include <random>
+
 #include "cnn/array.hpp"
 
 namespace cnn
@@ -161,8 +163,31 @@ void sub_scalar(Dtype alpha, const Array<Dtype>& src, Array<Dtype> *dst)
  *
  * @note variance is equal to the square of the standard deviation
  */
+
+// refer to
+// http://www.cplusplus.com/reference/random/normal_distribution/normal_distirbution/
 template<typename Dtype>
-void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev);
+void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev)
+{
+    extern std::default_random_engine g_generator;
+    std::normal_distribution<Dtype> distribution(mean, stddev);
+    for (int i = 0; i < arr->total_; i++)
+    {
+        arr->d_[i] = distribution(g_generator);
+    }
+}
+
+template<typename Dtype>
+void uniform(Array<Dtype>* arr, int low, int high)
+{
+    for (int i = 0; i < arr->total_; i++)
+    {
+        arr->d_[i] = uniform(low, high);
+    }
+}
+
 
 }  // namespace cnn
+
+#include "../../src/array_math.cpp"
 

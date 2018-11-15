@@ -369,7 +369,4 @@ Network<Dtype>::get_gradient_top_mutable(int i)
     return res;
 }
 
-template class Network<float>;
-template class Network<double>;
-
 }  // namespace cnn

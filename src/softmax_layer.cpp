@@ -146,8 +146,5 @@ void SoftmaxLayer<Dtype>::bprop(
     LOG(INFO) << ss.str();
 }
 
-template class SoftmaxLayer<float>;
-template class SoftmaxLayer<double>;
-
 }  // namespace cnn
 

@@ -55,3 +55,5 @@ class LogLossLayer : public Layer<Dtype>
 };
 
 }  // namespace cnn
+
+#include "../../src/log_loss_layer.cpp"

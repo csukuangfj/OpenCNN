@@ -1,7 +1,7 @@
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 
-#include "cnn/softmax_layer.hpp"
+#include "cnn/layer.hpp"
 
 namespace cnn
 {

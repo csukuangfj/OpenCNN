@@ -1,16 +1,14 @@
-#include <glog/logging.h>
 
 #include <algorithm>
 #include <vector>
 
+#include "cnn/common.hpp"
 #include "cnn/array_math.hpp"
 #include "cnn/log_loss_layer.hpp"
 
-// we use the same threshold as caffe for computing log()
-static float g_log_threshold = 1e-20;
-
 namespace cnn
 {
+
 template<typename Dtype>
 LogLossLayer<Dtype>::LogLossLayer(const LayerProto& _proto)
     : Layer<Dtype>(_proto),
@@ -73,7 +71,7 @@ void LogLossLayer<Dtype>::fprop(
 
     loss_ = 0;
 
-    auto& t = *top[0];
+    // auto& t = *top[0];
 
     const auto& b0 = *bottom[0];
     const auto& b1 = *bottom[1];
@@ -118,7 +116,7 @@ void LogLossLayer<Dtype>::bprop(
     Dtype scale = 1;
 #endif
 
-    const auto& t = *top[0];
+    // const auto& t = *top[0];
     const auto& b0 = *bottom[0];
     const auto& b1 = *bottom[1];
     auto& bg = *bottom_gradient[0];
@@ -146,9 +144,6 @@ void LogLossLayer<Dtype>::bprop(
     ss << "\n";
     LOG(INFO) << ss.str();
 }
-
-template class LogLossLayer<float>;
-template class LogLossLayer<double>;
 
 }  // namespace cnn
 

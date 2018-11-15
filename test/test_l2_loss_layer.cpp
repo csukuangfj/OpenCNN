@@ -113,11 +113,13 @@ TYPED_TEST(L2LossLayerTest, bprop)
             {&this->bottom1_gradient_},
             {&this->top_},
             {});
+
+    TypeParam expected = TypeParam(1)/this->bottom1_.total_;
     for (int i = 0; i < this->bottom1_gradient_.total_; i++)
     {
         if (i < n)
         {
-            EXPECT_EQ(this->bottom1_gradient_[i], 1);
+            EXPECT_EQ(this->bottom1_gradient_[i], expected);
         }
         else
         {

@@ -41,18 +41,19 @@ GTEST_API_ int main(int argc, char **argv)
 
     // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
     // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*bprop*";
+    // ::testing::GTEST_FLAG(filter) = "L2LossLayer_Test*bprop*";
     // ::testing::GTEST_FLAG(filter) = "LayerTest*";
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*";
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
     // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
+    // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*jet*";
     // ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "io_test*";
     // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
-    ::testing::GTEST_FLAG(filter) = "JetTest*";
+    // ::testing::GTEST_FLAG(filter) = "JetTest*";
 
     testing::InitGoogleTest(&argc, argv);
 
