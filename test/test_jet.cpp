@@ -219,5 +219,12 @@ TYPED_TEST(JetTest, jet_sub_div)
     EXPECT_NEAR(z.v_[1], dz_dy, 1e-7);
 }
 
+TYPED_TEST(JetTest, jet_exp)
+{
+    using Type = Jet<TypeParam, 1>;
+    Type f(1, 0, 10);
+    LOG(INFO) << exp(f);
+}
+
 }  // namespace cnn
 

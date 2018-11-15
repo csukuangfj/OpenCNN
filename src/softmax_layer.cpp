@@ -23,7 +23,6 @@ void SoftmaxLayer<Dtype>::reshape(
     CHECK_EQ(bottom.size(), 1) << "softmax accepts only 1 input";
     CHECK_EQ(top.size(), 1) << "softmax generates only 1 output";
 
-
     top[0]->init_like(*bottom[0]);
 
     if (this->proto_.phase() == TRAIN)
@@ -35,11 +34,12 @@ void SoftmaxLayer<Dtype>::reshape(
             bottom_gradient[0]->init_like(*bottom[0]);
         }
 
+        CHECK_EQ(top_gradient.size(), 1);
         top_gradient[0]->init_like(*bottom[0]);
     }
 
     CHECK_GE(bottom[0]->c_, 2)
-        << "we need at least two value to compute softmax!";
+        << "we need at least two numbers to compute softmax!";
 
     buffer_.init(1, 1, 1, bottom[0]->c_);
 }
@@ -49,48 +49,32 @@ void SoftmaxLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
-    std::ostringstream ss;
-    ss << "\n" << "softmax fprop:\n";
-    ss << "input: " << bottom[0]->shape_info() << "\n";
-    for (int i = 0; i < bottom[0]->total_; i++)
-    {
-        ss << bottom[0]->d_[i] << " ";
-    }
-    ss << "\n";
-
-    const auto& d = *bottom[0];
+    const auto& b = *bottom[0];
     auto& target = *top[0];
-    for (int n = 0; n < d.n_; n++)
-    for (int h = 0; h < d.h_; h++)
-    for (int w = 0; w < d.w_; w++)
+    for (int n = 0; n < b.n_; n++)
+    for (int h = 0; h < b.h_; h++)
+    for (int w = 0; w < b.w_; w++)
     {
-        Dtype max_val = std::numeric_limits<Dtype>::min();
-        for (int c = 0; c < d.c_; c++)
+        Dtype max_val = b(n, 0, h, w);
+        for (int c = 1; c < b.c_; c++)
         {
-            max_val = (d(n, c, h, w) > max_val) ? buffer_[c] : max_val;
+            max_val = (b(n, c, h, w) > max_val) ? buffer_[c] : max_val;
         }
 
-        for (int c = 0; c < d.c_; c++)
+        for (int c = 0; c < b.c_; c++)
         {
-            buffer_[c] = std::exp(d(n, c, h, w) - max_val);
+            // we use cnn::exp() here for Jet (only in unit test)
+            buffer_[c] = exp(b(n, c, h, w) - max_val);
         }
 
         Dtype den = sum_arr(buffer_);
         Dtype scale = Dtype(1) / den;
         scale_arr(scale, buffer_, &buffer_);
-        for (int c = 0; c < d.c_; c++)
+        for (int c = 0; c < b.c_; c++)
         {
             target(n, c, h, w) = buffer_[c];
         }
     }
-
-    ss << "output: " << top[0]->shape_info() << "\n";
-    for (int i = 0; i < top[0]->total_; i++)
-    {
-        ss << top[0]->d_[i] << " ";
-    }
-    ss << "\n";
-    // LOG(INFO) << ss.str();
 }
 
 template<typename Dtype>
@@ -116,6 +100,8 @@ void SoftmaxLayer<Dtype>::bprop(
         {
             Dtype scale = tg(n, i, h, w);
             Dtype yi = t(n, i, h, w);
+            bg(n, c, h, w) += scale * yi *((i == c) - yc);
+#if 0
             if (i == c)
             {
                 bg(n, c, h, w) += scale * (yi - yi*yc);
@@ -124,26 +110,9 @@ void SoftmaxLayer<Dtype>::bprop(
             {
                 bg(n, c, h, w) += scale * (-yi * yc);
             }
+#endif
         }
     }
-
-    std::ostringstream ss;
-    ss << "\n";
-    ss << "softmax top gradient: " << top_gradient[0]->shape_info() << "\n";
-    for (int i = 0; i < top_gradient[0]->total_; i++)
-    {
-        ss << top_gradient[0]->d_[i] << " ";
-    }
-    ss << "\n";
-
-    ss << "softmax bottom gradient: "
-       << bottom_gradient[0]->shape_info() << "\n";
-    for (int i = 0; i < bottom_gradient[0]->total_; i++)
-    {
-        ss << bottom_gradient[0]->d_[i] << " ";
-    }
-    ss << "\n";
-    LOG(INFO) << ss.str();
 }
 
 }  // namespace cnn

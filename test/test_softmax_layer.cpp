@@ -31,8 +31,7 @@ TYPED_TEST(SoftmaxLayerTest, reshape_train_phase)
 {
     this->layer_->proto().set_phase(TRAIN);
 
-    int n = 2;  // batch size
-    this->bottom_.init(n, 3, 4, 5);
+    this->bottom_.init(2, 3, 4, 5);
     this->layer_->reshape(
             {&this->bottom_},
             {&this->bottom_gradient_},
@@ -51,8 +50,7 @@ TYPED_TEST(SoftmaxLayerTest, reshape_test_phase)
 {
     this->layer_->proto().set_phase(TEST);
 
-    int n = 3;  // batch size
-    this->bottom_.init(n, 9, 6, 8);
+    this->bottom_.init(3, 9, 6, 8);
     this->layer_->reshape(
             {&this->bottom_},
             {&this->bottom_gradient_},
@@ -169,6 +167,66 @@ array([[6.69285092e-03, 1.67014218e-05, 8.80797078e-01],
     EXPECT_NEAR(t[9], 9.93307149e-01, 1e-5);
     EXPECT_NEAR(t[10], 9.99983299e-01, 1e-5);
     EXPECT_NEAR(t[11], 1.19202922e-01, 1e-5);
+}
+
+TYPED_TEST(SoftmaxLayerTest, bprop_with_jet)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 3;
+    static constexpr int W = 4;
+    static constexpr int DIM = C*H*W;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(SOFTMAX);
+    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
+
+    using Type = Jet<TypeParam, DIM>;
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+    uniform<Type>(&bottom, 1, 15);
+    for (int n = 0; n < N; n++)
+    for (int h = 0; h < H; h++)
+    for (int w = 0; w < W; w++)
+    for (int c = 0; c < C; c++)
+    {
+        // different pixels can share the same dual number space!
+        bottom(n, c, h, w).v_[c] = 1;
+    }
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    layer->fprop({&bottom}, {&top});
+
+    uniform<Type>(&top_gradient, -10, 10);
+
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+    for (int n = 0; n < N; n++)
+    for (int h = 0; h < H; h++)
+    for (int w = 0; w < W; w++)
+    for (int c = 0; c < C; c++)
+    {
+        TypeParam expected = 0;
+        for (int i = 0; i < C; i++)
+        {
+            expected += top(n, i, h, w).v_[c] * top_gradient(n, i, h, w).a_;
+        }
+        EXPECT_NEAR(bottom_gradient(n, c, h, w).a_, expected, 1e-6);
+    }
 }
 
 TYPED_TEST(SoftmaxLayerTest, bprop)

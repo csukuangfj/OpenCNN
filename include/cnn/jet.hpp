@@ -15,6 +15,7 @@
 #include <glog/logging.h>
 
 #include <array>
+#include <cmath>
 #include <string>
 
 namespace cnn
@@ -120,26 +121,15 @@ class Jet
         return ss.str();
     }
 
-    Jet& operator +=(const Jet& f)
-    {
-        *this = *this + f;
-        return *this;
-    }
-    Jet& operator -=(const Jet& f)
-    {
-        *this = *this - f;
-        return *this;
-    }
-    Jet& operator *=(const Jet& f)
-    {
-        *this = *this * f;
-        return *this;
-    }
-    Jet& operator /=(const Jet& f)
-    {
-        *this = *this / f;
-        return *this;
-    }
+    Jet& operator +=(const Jet& f) {return *this = *this + f;}
+    Jet& operator -=(const Jet& f) {return *this = *this - f;}
+    Jet& operator *=(const Jet& f) {return *this = *this * f;}
+    Jet& operator /=(const Jet& f) {return *this = *this / f;}
+
+    Jet& operator +=(const Dtype& s) {return *this = *this + s;}
+    Jet& operator -=(const Dtype& s) {return *this = *this - s;}
+    Jet& operator *=(const Dtype& s) {return *this = *this * s;}
+    Jet& operator /=(const Dtype& s) {return *this = *this / s;}
 
     operator Dtype() const
     {
@@ -203,9 +193,9 @@ Jet<Dtype, N> operator - (const Jet<Dtype, N>& f, Dtype s)
 template<typename Dtype, int N>
 Jet<Dtype, N> operator - (Dtype s, const Jet<Dtype, N>& f)
 {
-    Jet<Dtype, N> res(f);
-    res.a_ = s - res.a_;
-    res.v_ = -res.v_;
+    Jet<Dtype, N> res;
+    res.a_ = s - f.a_;
+    res.v_ = -f.v_;
     return res;
 }
 
@@ -305,6 +295,23 @@ template<typename Dtype, int N>
 bool operator >= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
 {return f.a_ >= g.a_;}
 
+
+//--------------------
+//  math functions
+//--------------------
+using std::exp;
+
+template<typename Dtype, int N>
+Jet<Dtype, N> exp(const Jet<Dtype, N>& f)
+{
+    Jet<Dtype, N> res;
+
+    auto s = exp(f.a_);
+    res.a_ = s;
+    res.v_ = s * f.v_;
+
+    return res;
+}
 
 }  // namespace cnn
 
