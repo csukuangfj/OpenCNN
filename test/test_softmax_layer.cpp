@@ -175,14 +175,14 @@ TYPED_TEST(SoftmaxLayerTest, bprop_with_jet)
     static constexpr int C = 3;
     static constexpr int H = 3;
     static constexpr int W = 4;
-    static constexpr int DIM = C*H*W;
+    static constexpr int DIM = C;
+
+    using Type = Jet<TypeParam, DIM>;
 
     LayerProto proto;
     proto.set_phase(TRAIN);
     proto.set_type(SOFTMAX);
-    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
-
-    using Type = Jet<TypeParam, DIM>;
+    auto layer = Layer<Type>::create(proto);
 
     Array<Type> bottom;
     Array<Type> bottom_gradient;

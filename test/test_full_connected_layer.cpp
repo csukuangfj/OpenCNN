@@ -177,14 +177,14 @@ TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_input2)
     static constexpr int W = 4;
     static constexpr int DIM = C*H*W;
 
+    using Type = Jet<TypeParam, DIM>;
+
     this->num_output_ = 6;
     LayerProto proto;
     proto.set_phase(TRAIN);
     proto.set_type(FULL_CONNECTED);
     proto.mutable_fc_proto()->set_num_output(this->num_output_);
-    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
-
-    using Type = Jet<TypeParam, DIM>;
+    auto layer = Layer<Type>::create(proto);
 
     Array<Type> bottom;
     Array<Type> bottom_gradient;

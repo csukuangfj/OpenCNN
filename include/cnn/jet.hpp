@@ -298,6 +298,8 @@ bool operator >= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
 
 //--------------------
 //  math functions
+//      std::exp
+//      std::log
 //--------------------
 using std::exp;
 
@@ -308,6 +310,20 @@ Jet<Dtype, N> exp(const Jet<Dtype, N>& f)
 
     auto s = exp(f.a_);
     res.a_ = s;
+    res.v_ = s * f.v_;
+
+    return res;
+}
+
+using std::log;
+
+template<typename Dtype, int N>
+Jet<Dtype, N> log(const Jet<Dtype, N>& f)
+{
+    Jet<Dtype, N> res;
+
+    auto s = Dtype(1)/f.a_;
+    res.a_ = log(f.a_);
     res.v_ = s * f.v_;
 
     return res;

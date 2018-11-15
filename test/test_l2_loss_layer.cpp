@@ -102,12 +102,12 @@ TYPED_TEST(L2LossLayerTest, bprop_with_jet)
     static constexpr int W = 5;
     static constexpr int DIM = N*C*H*W;
 
+    using Type = Jet<TypeParam, DIM>;
+
     LayerProto proto;
     proto.set_phase(TRAIN);
     proto.set_type(L2_LOSS);
-    auto layer = Layer<Jet<TypeParam, DIM>>::create(proto);
-
-    using Type = Jet<TypeParam, DIM>;
+    auto layer = Layer<Type>::create(proto);
 
     Array<Type> bottom1;
     Array<Type> bottom2;
