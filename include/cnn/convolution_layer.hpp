@@ -34,6 +34,12 @@ class ConvolutionLayer : public Layer<Dtype>
             const std::vector<const Array<Dtype>*>& top,
             const std::vector<const Array<Dtype>*>& top_gradient) override;
  private:
+    void one_channel_convolution(
+            const Dtype* weight,
+            const Dtype* src,
+            int height, int width,
+            Dtype* dst);
+ private:
     int num_output_;
     int kernel_size_;
 };

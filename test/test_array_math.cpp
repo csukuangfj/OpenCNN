@@ -118,4 +118,16 @@ TYPED_TEST(ArrayMathTest, sub_scalar)
     EXPECT_EQ(d[1], 3);
 }
 
+TYPED_TEST(ArrayMathTest, sub_scalar2)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = 10;
+    d[1] = 5;
+
+    sub_scalar<TypeParam>(d.total_, 3, &d[0], &d[0]);
+    EXPECT_EQ(d[0], 7);
+    EXPECT_EQ(d[1], 2);
+}
+
 }  // namespace cnn

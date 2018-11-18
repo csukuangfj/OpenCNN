@@ -154,6 +154,18 @@ void sub_scalar(Dtype alpha, const Array<Dtype>& src, Array<Dtype> *dst)
 }
 
 /**
+ * dst[i] = src[i] - alpha
+ */
+template<typename Dtype>
+void sub_scalar(int n, Dtype alpha, const Dtype* src, Dtype* dst)
+{
+    for (int i = 0; i < n; i++)
+    {
+        dst[i] = src[i] - alpha;
+    }
+}
+
+/**
  * Fill the array with random values drawn from a guassian
  * distribution with the given mean and standard deviation.
  *

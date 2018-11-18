@@ -4,6 +4,16 @@
 
 #include "cnn/convolution_layer.hpp"
 
+namespace
+{
+bool is_inside(int h, int w, int height, int width)
+{
+    return (h >= 0) && (h < height)
+        && (w >= 0) && (w < width);
+}
+
+}
+
 namespace cnn
 {
 template<typename Dtype>
@@ -98,6 +108,31 @@ void ConvolutionLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
+    const auto& b = *bottom[0];
+    auto& t = *top[0];
+
+    int h = b.h_;
+    int w = b.w_;
+
+    for (int n = 0; n < b.n_; n++)
+    for (int i = 0; i < num_output_; i++)
+    {
+        for (int c = 0; c < b.c_; c++)
+        {
+            one_channel_convolution(
+                    &this->param_[0]->operator()(i, c, 0, 0),
+                    &b(n, c, 0, 0),
+                    b.h_,
+                    b.w_,
+                    &t(n, i, 0, 0));
+        }
+        // add the bias
+        sub_scalar<Dtype>(
+                h*w,
+                -this->param_[1]->d_[i],
+                &t(n, i, 0, 0),
+                &t(n, i, 0, 0));
+    }
 }
 
 template<typename Dtype>
@@ -107,6 +142,36 @@ void ConvolutionLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& top,
         const std::vector<const Array<Dtype>*>& top_gradient)
 {
+}
+
+template<typename Dtype>
+void ConvolutionLayer<Dtype>::one_channel_convolution(
+        const Dtype* weight,
+        const Dtype* src,
+        int height, int width,
+        Dtype* dst)
+{
+    // we assume the anchor is at the center of the kernel
+    int s = kernel_size_ / 2;
+    for (int h = 0; h < height; h++)
+    for (int w = 0; w < width; w++)
+    {
+        Dtype t = 0;
+        for (int i = -s; i <= s; i++)
+        for (int j = -s; j <= s; j++)
+        {
+            if (!is_inside(h+i, w+j, height, width))
+            {
+                continue;
+            }
+
+            Dtype pixel = src[(h+i)*width + (w+j)];
+            Dtype scale = weight[(i+s)*kernel_size_ + (j+s)];
+            t += pixel*scale;
+        }
+
+        dst[h*width + w] += t;
+    }
 }
 
 }  // namespace cnn
