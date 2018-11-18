@@ -106,6 +106,16 @@ TYPED_TEST(ArrayMathTest, sum_arr)
     EXPECT_EQ(r, 2);
 }
 
+TYPED_TEST(ArrayMathTest, sum_arr2)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = -2;
+    d[1] = 3;
+    auto r = sum_arr<TypeParam>(d.total_, &d[0]);
+    EXPECT_EQ(r, 1);
+}
+
 TYPED_TEST(ArrayMathTest, sub_scalar)
 {
     Array<TypeParam> d;

@@ -532,4 +532,71 @@ TYPED_TEST(ConvolutionLayerTest, fprop5)
     }
 }
 
+// gradient for the bottom
+TYPED_TEST(ConvolutionLayerTest, bprop_with_jet_input)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = C*H*W;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    this->num_output_ = 2;
+    this->kernel_size_ = 3;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(CONVOLUTION);
+    proto.mutable_conv_proto()->set_num_output(this->num_output_);
+    proto.mutable_conv_proto()->set_kernel_size(this->kernel_size_);
+
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+
+    uniform<Type>(&bottom, -100, 100);
+    for (int n = 0; n < N; n++)
+    for (int i = 0; i < DIM; i++)
+    {
+        bottom.d_[n*DIM + i].v_[i] = 1;
+    }
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+    layer->fprop({&bottom}, {&top});
+    uniform<Type>(&top_gradient, -100, 100);
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    for (int n = 0; n < N; n++)
+    {
+        Type s = 0;
+        for (int c = 0; c < top.c_; c++)
+        for (int h = 0; h < top.h_; h++)
+        for (int w = 0; w < top.w_; w++)
+        {
+            s += top(n, c, h, w) * top_gradient(n, c, h, w).a_;
+        }
+
+        for (int i = 0; i < DIM; i++)
+        {
+            TypeParam expected = s.v_[i];
+            EXPECT_NEAR(bottom_gradient[n*DIM + i], expected, 1e-5);
+        }
+    }
+}
+
 }  // namespace cnn

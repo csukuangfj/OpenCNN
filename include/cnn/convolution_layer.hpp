@@ -39,6 +39,14 @@ class ConvolutionLayer : public Layer<Dtype>
             const Dtype* src,
             int height, int width,
             Dtype* dst);
+
+    void one_channel_bprop(
+            const Dtype* weight,
+            const Dtype* bottom,
+            int height, int width,
+            const Dtype* top_gradient,
+            Dtype* bottom_gradient,
+            Dtype* param_gradient);
  private:
     int num_output_;
     int kernel_size_;

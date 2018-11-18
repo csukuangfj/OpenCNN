@@ -141,6 +141,17 @@ Dtype sum_arr(const Array<Dtype>& src)
     return res;
 }
 
+template<typename Dtype>
+Dtype sum_arr(int n, const Dtype* src)
+{
+    Dtype res = 0;
+    for (int i = 0; i < n; i++)
+    {
+        res += src[i];
+    }
+    return res;
+}
+
 /**
  * dst[i] = src[i] - alpha
  */

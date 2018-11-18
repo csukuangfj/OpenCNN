@@ -139,9 +139,31 @@ template<typename Dtype>
 void ConvolutionLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
-        const std::vector<const Array<Dtype>*>& top,
+        const std::vector<const Array<Dtype>*>& /*top*/,
         const std::vector<const Array<Dtype>*>& top_gradient)
 {
+    const auto& b = *bottom[0];
+    auto& bg = *bottom_gradient[0];
+
+    const auto& tg = *top_gradient[0];
+
+    for (int n = 0; n < b.n_; n++)
+    for (int i = 0; i < num_output_; i++)
+    {
+        for (int c = 0; c < b.c_; c++)
+        {
+            one_channel_bprop(
+                    &this->param_[0]->operator()(i, c, 0, 0),
+                    &b(n, c, 0, 0),
+                    b.h_,
+                    b.w_,
+                    &tg(n, i, 0, 0),
+                    &bg(n, c, 0, 0),
+                    &this->gradient_[0]->operator()(i, c, 0, 0));
+        }
+        // gradient for the bias
+        this->gradient_[1]->d_[i] += sum_arr(b.h_*b.w_, &tg(n, i, 0, 0));
+    }
 }
 
 template<typename Dtype>
@@ -171,6 +193,35 @@ void ConvolutionLayer<Dtype>::one_channel_convolution(
         }
 
         dst[h*width + w] += t;
+    }
+}
+
+template<typename Dtype>
+void ConvolutionLayer<Dtype>::one_channel_bprop(
+        const Dtype* weight,
+        const Dtype* bottom,
+        int height, int width,
+        const Dtype* top_gradient,
+        Dtype* bottom_gradient,
+        Dtype* param_gradient)
+{
+    int s = kernel_size_ / 2;
+    for (int h = 0; h < height; h++)
+    for (int w = 0; w < width; w++)
+    {
+        for (int i = -s; i <= s; i++)
+        for (int j = -s; j <= s; j++)
+        {
+            if (!is_inside(h+i, w+j, height, width))
+            {
+                continue;
+            }
+
+            Dtype tg = top_gradient[h*width+w];
+
+            bottom_gradient[(h+i)*width + (w+j)] += tg * weight[(i+s)*kernel_size_ + (j+s)];
+            param_gradient[(i+s)*kernel_size_ + (j+s)] += tg * bottom[(h+i)*width + (w+j)];
+        }
     }
 }
 
