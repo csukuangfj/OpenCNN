@@ -2,38 +2,52 @@
 
 #include <vector>
 
-#include "cnn/array_math.hpp"
-#include "cnn/full_connected_layer.hpp"
-#include "cnn/jet.hpp"
+#include "cnn/convolution_layer.hpp"
 
 namespace cnn
 {
 template<typename Dtype>
-FullConnectedLayer<Dtype>::FullConnectedLayer(const LayerProto& _proto)
+ConvolutionLayer<Dtype>::ConvolutionLayer(const LayerProto& _proto)
     : Layer<Dtype>(_proto)
 {
-    num_output_ = _proto.fc_proto().num_output();
+    const auto& p = _proto.conv_proto();
+    num_output_ = p.num_output();
+    kernel_size_ = p.kernel_size();
+
+    CHECK_GE(num_output_, 1);
+    CHECK_GE(kernel_size_, 1);
+    CHECK(kernel_size_ & 1)
+        << "the kernel size must be odd!";
 }
 
 template<typename Dtype>
-void FullConnectedLayer<Dtype>::reshape(
+void ConvolutionLayer<Dtype>::reshape(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<Array<Dtype>*>& top,
         const std::vector<Array<Dtype>*>& top_gradient)
 {
     CHECK_EQ(bottom.size(), 1);
-
     CHECK_EQ(top.size(), 1);
 
-    int n = bottom[0]->n_;
-    top[0]->init(n, num_output_, 1, 1);
+    top[0]->init(
+            bottom[0]->n_,
+            num_output_,
+            bottom[0]->h_,
+            bottom[0]->w_);
 
     if (this->param_.empty())
     {
+        // param[0] is the kernel weight
+        // param[1] is the bias
         this->param_.resize(2);
+
         this->param_[0] = std::make_shared<Array<Dtype>>();
-        this->param_[0]->init(1, 1, num_output_, bottom[0]->total_/n);
+        this->param_[0]->init(
+                num_output_,
+                bottom[0]->c_,
+                kernel_size_,
+                kernel_size_);
 
         // TODO(fangjun): use other strategies
         gaussian<Dtype>(this->param_[0].get(), 0, 1);
@@ -48,10 +62,10 @@ void FullConnectedLayer<Dtype>::reshape(
     {
         CHECK_EQ(this->param_.size(), 2);
 
-        CHECK_EQ(this->param_[0]->n_, 1);
-        CHECK_EQ(this->param_[0]->c_, 1);
-        CHECK_EQ(this->param_[0]->h_, num_output_);
-        CHECK_EQ(this->param_[0]->w_, bottom[0]->total_/n);
+        CHECK_EQ(this->param_[0]->n_, num_output_);
+        CHECK_EQ(this->param_[0]->c_, bottom[0]->c_);
+        CHECK_EQ(this->param_[0]->h_, kernel_size_);
+        CHECK_EQ(this->param_[0]->w_, kernel_size_);
 
         CHECK(this->param_[1]->has_same_shape({1, 1, 1, num_output_}));
     }
@@ -80,68 +94,21 @@ void FullConnectedLayer<Dtype>::reshape(
 }
 
 template<typename Dtype>
-void FullConnectedLayer<Dtype>::fprop(
+void ConvolutionLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
-    int n = bottom[0]->n_;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < num_output_; j++)
-        {
-            Dtype dot = ax_dot_by<Dtype>(this->param_[0]->w_,
-                    1,
-                    &this->param_[0]->operator()(0, 0, j, 0),
-                    1,
-                    &bottom[0]->operator()(i, 0, 0, 0));
-            top[0]->operator()(i, j, 0, 0) =
-                dot + this->param_[1]->operator[](j);
-        }
-    }
 }
 
 template<typename Dtype>
-void FullConnectedLayer<Dtype>::bprop(
+void ConvolutionLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<const Array<Dtype>*>& top,
         const std::vector<const Array<Dtype>*>& top_gradient)
 {
-    // compute parameter gradient
-    auto& w = *this->param_[0];
-    auto& dw = *this->gradient_[0];
-
-    auto& db = *this->gradient_[1];
-
-    auto& x = *bottom[0];
-    auto& dx = *bottom_gradient[0];
-
-    auto& y = *top[0];
-    auto& dy = *top_gradient[0];
-
-    int stride = dw.w_;
-    for (int n = 0; n < y.n_; n++)
-    {
-        for (int i = 0; i < num_output_; i++)
-        {
-            Dtype scale = dy(n, i, 0, 0);
-            ax_plus_by<Dtype>(stride,
-                    scale,
-                    &x[n*stride],
-                    1,
-                    &dw(0, 0, i, 0));
-
-            db.d_[i] += scale;
-
-            ax_plus_by<Dtype>(
-                    stride,
-                    scale,
-                    &w(0, 0, i, 0),
-                    1,
-                    &dx[n*stride]);
-        }
-    }
 }
 
 }  // namespace cnn
+
 

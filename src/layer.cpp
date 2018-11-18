@@ -1,5 +1,6 @@
 #include <glog/logging.h>
 
+#include "cnn/convolution_layer.hpp"
 #include "cnn/full_connected_layer.hpp"
 #include "cnn/input_layer.hpp"
 #include "cnn/jet.hpp"
@@ -46,6 +47,7 @@ Layer<Dtype>::create(const LayerProto& _proto)
         CREATE_LAYER(SOFTMAX, SoftmaxLayer);
         CREATE_LAYER(LOG_LOSS, LogLossLayer);
         CREATE_LAYER(SOFTMAX_WITH_LOG_LOSS, SoftmaxWithLogLossLayer);
+        CREATE_LAYER(CONVOLUTION, ConvolutionLayer);
 
         default:
             LOG(FATAL) << "Unknown layer type: "

@@ -60,5 +60,16 @@ TYPED_TEST(LayerTest, create_softmax_with_log_loss)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_convolution)
+{
+    LayerProto proto;
+    proto.set_type(CONVOLUTION);
+    auto* p = proto.mutable_conv_proto();
+    p->set_num_output(2);
+    p->set_kernel_size(1);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

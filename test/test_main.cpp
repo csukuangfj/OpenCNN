@@ -53,6 +53,7 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "JetTest*";
+    ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
 
     testing::InitGoogleTest(&argc, argv);
 
