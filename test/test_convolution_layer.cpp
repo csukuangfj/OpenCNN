@@ -36,10 +36,10 @@ TYPED_TEST_CASE(ConvolutionLayerTest, MyTypes);
 
 TYPED_TEST(ConvolutionLayerTest, reshape_train_phase)
 {
-    const static int N = 2;
-    const static int C = 3;
-    const static int H = 4;
-    const static int W = 5;
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
 
     this->layer_->proto().set_phase(TRAIN);
 
@@ -78,10 +78,10 @@ TYPED_TEST(ConvolutionLayerTest, reshape_train_phase)
 
 TYPED_TEST(ConvolutionLayerTest, reshape_test_phase)
 {
-    const static int N = 2;
-    const static int C = 3;
-    const static int H = 4;
-    const static int W = 5;
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
 
     this->layer_->proto().set_phase(TEST);
 
@@ -123,10 +123,10 @@ TYPED_TEST(ConvolutionLayerTest, fprop)
 
     this->layer_ = Layer<TypeParam>::create(proto);
 
-    const static int N = 1;
-    const static int C = 1;
-    const static int H = 5;
-    const static int W = 5;
+    static constexpr int N = 1;
+    static constexpr int C = 1;
+    static constexpr int H = 5;
+    static constexpr int W = 5;
 
     this->bottom_.init(N, C, H, W);
     this->layer_->reshape(
@@ -186,10 +186,10 @@ TYPED_TEST(ConvolutionLayerTest, fprop2)
 
     this->layer_ = Layer<TypeParam>::create(proto);
 
-    const static int N = 1;
-    const static int C = 1;
-    const static int H = 5;
-    const static int W = 5;
+    static constexpr int N = 1;
+    static constexpr int C = 1;
+    static constexpr int H = 5;
+    static constexpr int W = 5;
 
     this->bottom_.init(N, C, H, W);
     this->layer_->reshape(
@@ -251,10 +251,10 @@ TYPED_TEST(ConvolutionLayerTest, fprop3)
 
     this->layer_ = Layer<TypeParam>::create(proto);
 
-    const static int N = 1;
-    const static int C = 2;
-    const static int H = 5;
-    const static int W = 5;
+    static constexpr int N = 1;
+    static constexpr int C = 2;
+    static constexpr int H = 5;
+    static constexpr int W = 5;
 
     this->bottom_.init(N, C, H, W);
     this->layer_->reshape(
@@ -334,10 +334,10 @@ TYPED_TEST(ConvolutionLayerTest, fprop4)
 
     this->layer_ = Layer<TypeParam>::create(proto);
 
-    const static int N = 2;
-    const static int C = 2;
-    const static int H = 5;
-    const static int W = 5;
+    static constexpr int N = 2;
+    static constexpr int C = 2;
+    static constexpr int H = 5;
+    static constexpr int W = 5;
 
     this->bottom_.init(N, C, H, W);
     this->layer_->reshape(
@@ -427,10 +427,10 @@ TYPED_TEST(ConvolutionLayerTest, fprop5)
 
     this->layer_ = Layer<TypeParam>::create(proto);
 
-    const static int N = 2;
-    const static int C = 2;
-    const static int H = 5;
-    const static int W = 5;
+    static constexpr int N = 2;
+    static constexpr int C = 2;
+    static constexpr int H = 5;
+    static constexpr int W = 5;
 
     this->bottom_.init(N, C, H, W);
     this->layer_->reshape(
@@ -596,6 +596,165 @@ TYPED_TEST(ConvolutionLayerTest, bprop_with_jet_input)
             TypeParam expected = s.v_[i];
             EXPECT_NEAR(bottom_gradient[n*DIM + i], expected, 1e-5);
         }
+    }
+}
+
+// gradient for the weight
+TYPED_TEST(ConvolutionLayerTest, bprop_with_jet_weight)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 5;
+    static constexpr int H = 6;
+    static constexpr int W = 7;
+    static constexpr int NUM_OUTPUT = 2;
+    static constexpr int KERNEL_SIZE = 3;
+
+    static constexpr int DIM = NUM_OUTPUT * C * KERNEL_SIZE * KERNEL_SIZE;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    this->num_output_ = NUM_OUTPUT;
+    this->kernel_size_ = KERNEL_SIZE;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(CONVOLUTION);
+    proto.mutable_conv_proto()->set_num_output(this->num_output_);
+    proto.mutable_conv_proto()->set_kernel_size(this->kernel_size_);
+
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+
+    uniform<Type>(&bottom, -100, 100);
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+    auto& p = *layer->mutable_param()[0];
+
+    // Another alternative is to test weight per output.
+    // For simplicity, we test all weight at once
+    // at the expense of more memory.
+    for (int i = 0; i < DIM; i++)
+    {
+        p[i].v_[i] = 1;
+    }
+
+    layer->fprop({&bottom}, {&top});
+
+    uniform<Type>(&top_gradient, -100, 100);
+
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    const auto& pg = *layer->gradient()[0];
+
+    Type s = 0;
+    for (int n = 0; n < N; n++)
+    {
+        for (int c = 0; c < top.c_; c++)
+        for (int h = 0; h < top.h_; h++)
+        for (int w = 0; w < top.w_; w++)
+        {
+            s += top(n, c, h, w) * top_gradient(n, c, h, w).a_;
+        }
+    }
+
+    for (int i = 0; i < DIM; i++)
+    {
+        TypeParam expected = s.v_[i];
+        EXPECT_NEAR(pg[i], expected, 1e-5);
+    }
+}
+
+// gradient for the bias
+TYPED_TEST(ConvolutionLayerTest, bprop_with_jet_bias)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 5;
+    static constexpr int H = 6;
+    static constexpr int W = 7;
+    static constexpr int NUM_OUTPUT = 2;
+    static constexpr int KERNEL_SIZE = 3;
+
+    static constexpr int DIM = NUM_OUTPUT;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    this->num_output_ = NUM_OUTPUT;
+    this->kernel_size_ = KERNEL_SIZE;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(CONVOLUTION);
+    proto.mutable_conv_proto()->set_num_output(this->num_output_);
+    proto.mutable_conv_proto()->set_kernel_size(this->kernel_size_);
+
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+
+    uniform<Type>(&bottom, -100, 100);
+
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+    auto& b = *layer->mutable_param()[1];
+
+    EXPECT_EQ(b.total_, DIM);
+    // Another alternative is to test bias per output.
+    // For simplicity, we test all bias at once
+    // at the expense of more memory
+    for (int i = 0; i < DIM; i++)
+    {
+        b[i].v_[i] = 1;
+    }
+
+    layer->fprop({&bottom}, {&top});
+
+    uniform<Type>(&top_gradient, -100, 100);
+
+    layer->bprop(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    const auto& bg = *layer->gradient()[1];
+
+    Type s = 0;
+    for (int n = 0; n < N; n++)
+    {
+        for (int c = 0; c < top.c_; c++)
+        for (int h = 0; h < top.h_; h++)
+        for (int w = 0; w < top.w_; w++)
+        {
+            s += top(n, c, h, w) * top_gradient(n, c, h, w).a_;
+        }
+    }
+
+    for (int i = 0; i < DIM; i++)
+    {
+        TypeParam expected = s.v_[i];
+        EXPECT_NEAR(bg[i], expected, 1e-5);
     }
 }
 

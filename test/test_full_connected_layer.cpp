@@ -169,7 +169,7 @@ TYPED_TEST(FullConnectedLayerTest, fprop)
     EXPECT_EQ(expected11, this->top_[3]);
 }
 
-TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_input2)
+TYPED_TEST(FullConnectedLayerTest, bprop_with_jet_input)
 {
     static constexpr int N = 2;
     static constexpr int C = 3;

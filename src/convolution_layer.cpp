@@ -209,6 +209,7 @@ void ConvolutionLayer<Dtype>::one_channel_bprop(
     for (int h = 0; h < height; h++)
     for (int w = 0; w < width; w++)
     {
+        Dtype tg = top_gradient[h*width+w];
         for (int i = -s; i <= s; i++)
         for (int j = -s; j <= s; j++)
         {
@@ -216,8 +217,6 @@ void ConvolutionLayer<Dtype>::one_channel_bprop(
             {
                 continue;
             }
-
-            Dtype tg = top_gradient[h*width+w];
 
             bottom_gradient[(h+i)*width + (w+j)] += tg * weight[(i+s)*kernel_size_ + (j+s)];
             param_gradient[(i+s)*kernel_size_ + (j+s)] += tg * bottom[(h+i)*width + (w+j)];
