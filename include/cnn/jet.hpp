@@ -14,6 +14,7 @@
 
 #include <glog/logging.h>
 
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <string>
@@ -300,7 +301,17 @@ bool operator >= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
 //  math functions
 //      std::exp
 //      std::log
+//      std::max
 //--------------------
+using std::max;
+
+// do not return a reference here!
+template<typename Dtype, int N>
+Jet<Dtype, N> max(const Jet<Dtype, N>& f, const Jet<Dtype, N>&g)
+{
+    return (f < g) ? g : f;
+}
+
 using std::exp;
 
 template<typename Dtype, int N>

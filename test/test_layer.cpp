@@ -71,5 +71,13 @@ TYPED_TEST(LayerTest, create_convolution)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_relu)
+{
+    LayerProto proto;
+    proto.set_type(RELU);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

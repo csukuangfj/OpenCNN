@@ -33,6 +33,7 @@ enum LayerType
     LOG_LOSS        = 4;
     SOFTMAX_WITH_LOG_LOSS = 5;
     CONVOLUTION     = 6;
+    RELU            = 7;
 }
 
 // same as caffe

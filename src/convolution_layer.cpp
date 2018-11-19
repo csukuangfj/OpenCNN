@@ -218,8 +218,11 @@ void ConvolutionLayer<Dtype>::one_channel_bprop(
                 continue;
             }
 
-            bottom_gradient[(h+i)*width + (w+j)] += tg * weight[(i+s)*kernel_size_ + (j+s)];
-            param_gradient[(i+s)*kernel_size_ + (j+s)] += tg * bottom[(h+i)*width + (w+j)];
+            bottom_gradient[(h+i)*width + (w+j)] +=
+                tg * weight[(i+s)*kernel_size_ + (j+s)];
+
+            param_gradient[(i+s)*kernel_size_ + (j+s)] +=
+                tg * bottom[(h+i)*width + (w+j)];
         }
     }
 }
