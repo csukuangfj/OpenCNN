@@ -79,5 +79,16 @@ TYPED_TEST(LayerTest, create_relu)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_max_pooling)
+{
+    LayerProto proto;
+    proto.set_type(MAX_POOLING);
+    auto* p = proto.mutable_max_pooling_proto();
+    p->set_win_size(2);
+    p->set_stride(2);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

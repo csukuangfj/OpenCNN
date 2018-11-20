@@ -157,7 +157,7 @@ TYPED_TEST(ReLULayerTest, bprop_with_jet)
     for (int i = 0; i < bottom_gradient.total_; i++)
     {
         TypeParam expected = top[i].v_[0]*top_gradient[i].a_;
-        EXPECT_EQ(bottom_gradient[i], expected);
+        EXPECT_EQ(bottom_gradient[i].a_, expected);
     }
 }
 

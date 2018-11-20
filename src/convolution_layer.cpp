@@ -6,6 +6,7 @@
 
 namespace
 {
+inline
 bool is_inside(int h, int w, int height, int width)
 {
     return (h >= 0) && (h < height)

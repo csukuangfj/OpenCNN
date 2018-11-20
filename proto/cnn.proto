@@ -34,6 +34,7 @@ enum LayerType
     SOFTMAX_WITH_LOG_LOSS = 5;
     CONVOLUTION     = 6;
     RELU            = 7;
+    MAX_POOLING     = 8;
 }
 
 // same as caffe
@@ -55,6 +56,7 @@ message LayerProto
     optional InputLayerProto input_proto        = 7;
     optional FullConnectedLayerProto fc_proto   = 8;
     optional ConvolutionLayerProto conv_proto   = 9;
+    optional MaxPoolingLayerProto max_pooling_proto = 10;
 }
 
 message InputLayerProto
@@ -76,5 +78,11 @@ message ConvolutionLayerProto
     optional int32 kernel_size = 2;   // size of the square kernel
     // currently we assume implicit padding with stride 1 so
     // that the output size equals to the input size
+}
+
+message MaxPoolingLayerProto
+{
+    optional int32 win_size  = 1;  // size of a square window
+    optional int32 stride = 2;  // stride of the window
 }
 

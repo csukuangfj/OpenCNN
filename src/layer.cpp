@@ -7,6 +7,7 @@
 #include "cnn/l2_loss_layer.hpp"
 #include "cnn/layer.hpp"
 #include "cnn/log_loss_layer.hpp"
+#include "cnn/max_pooling_layer.hpp"
 #include "cnn/relu_layer.hpp"
 #include "cnn/softmax_layer.hpp"
 #include "cnn/softmax_with_log_loss_layer.hpp"
@@ -50,6 +51,7 @@ Layer<Dtype>::create(const LayerProto& _proto)
         CREATE_LAYER(SOFTMAX_WITH_LOG_LOSS, SoftmaxWithLogLossLayer);
         CREATE_LAYER(CONVOLUTION, ConvolutionLayer);
         CREATE_LAYER(RELU, ReLULayer);
+        CREATE_LAYER(MAX_POOLING, MaxPoolingLayer);
 
         default:
             LOG(FATAL) << "Unknown layer type: "
