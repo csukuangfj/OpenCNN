@@ -1,5 +1,6 @@
 #include <glog/logging.h>
 
+#include <utility>
 #include <vector>
 
 #include "cnn/max_pooling_layer.hpp"

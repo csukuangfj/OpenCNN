@@ -82,4 +82,61 @@ void string_to_proto(
     CHECK(google::protobuf::TextFormat::ParseFromString(model, message));
 }
 
+// refer to http://netpbm.sourceforge.net/doc/pgm.html
+// for the spec of pgm
+void write_pgm(
+        const std::string& filename,
+        const Array<uint8_t>& img)
+{
+    std::ofstream of(filename,
+            std::ios::out | std::ios::trunc | std::ios::binary);
+    if (!of)
+    {
+        LOG(FATAL) << "cannot create file " << filename;
+    }
+
+    of << "P5" << "\n";
+
+    of << "# created with cnn" << "\n";
+
+    of << img.w_ << " " << img.h_ << "\n";
+
+    of << 255 << "\n";
+
+    of.write((const char*)&img[0], img.total_);
+}
+
+void read_pgm(
+        const std::string& filename,
+        Array<uint8_t>* img)
+{
+    // std::ifstream fs(filename, std::ios::binary);
+    std::ifstream fs(filename);
+    if (!fs)
+    {
+        LOG(FATAL) << "cannot read file " << filename;
+    }
+
+    std::string format;
+    std::getline(fs, format);
+    LOG(INFO) << "format is: " << format;
+
+    std::string comments;
+    std::getline(fs, comments);
+
+    int width, height;
+    fs >> width >> height;
+
+    int max_val;
+    fs >> max_val;
+
+    CHECK_EQ(max_val, 255);
+
+    fs.get();   // eat the new line \n
+
+    img->init(1, 1, height, width);
+
+    fs.read(reinterpret_cast<char*>(&img[0][0]), img->total_);
+}
+
 }  // namespace cnn

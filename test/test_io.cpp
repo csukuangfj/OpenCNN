@@ -2,6 +2,7 @@
 
 #include "cnn/common.hpp"
 #include "cnn/io.hpp"
+#include "cnn/array.hpp"
 
 #include "proto/cnn.pb.h"
 
@@ -82,7 +83,28 @@ layer_proto {
     NetworkProto proto;
     string_to_proto(model, &proto);
     LOG(INFO) << proto.DebugString();
+}
 
+TEST(io_test, write_read_pgm)
+{
+    std::string filename = "abc.pgm";
+    Array<uint8_t> a;
+    a.init(1, 1, 50, 50);
+    LOG(INFO) << "a.h: " << a.h_;
+    for (int i = 0; i < a.h_; i++)
+    {
+        a(0, 0, i, i) = 255;
+    }
+    write_pgm(filename, a);
+
+    Array<uint8_t> b;
+    read_pgm(filename, &b);
+
+    EXPECT_TRUE(a.has_same_shape(b));
+    for (int i = 0; i < a.total_; i++)
+    {
+        EXPECT_EQ(a[i], b[i]);
+    }
 }
 
 }  // namespace cnn
