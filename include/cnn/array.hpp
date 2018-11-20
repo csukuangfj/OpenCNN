@@ -18,9 +18,13 @@ class Array
     Array& operator=(const Array<Dtype>&) = delete;
 
     void init(int n, int c, int h, int w);
-    void init_like(const Array<Dtype> &arr);
 
-    bool has_same_shape(const Array<Dtype> &arr) const;
+    template<typename U>
+    void init_like(const Array<U> &arr);
+
+    template<typename U>
+    bool has_same_shape(const Array<U> &arr) const;
+
     bool has_same_shape(const std::vector<int>& vec) const;
     std::vector<int> shape_vec() const {return {n_, c_, h_, w_};}
 

@@ -27,9 +27,10 @@ Array<Dtype>::~Array()
 }
 
 template<typename Dtype>
-void Array<Dtype>::init_like(const Array<Dtype> &arr)
+template<typename U>
+void Array<Dtype>::init_like(const Array<U> &arr)
 {
-    if (this == &arr) return;
+    if (this->has_same_shape(arr)) return;
     init(arr.n_, arr.c_, arr.h_, arr.w_);
 }
 
@@ -70,7 +71,8 @@ void Array<Dtype>::init(int n, int c, int h, int w)
 }
 
 template<typename Dtype>
-bool Array<Dtype>::has_same_shape(const Array<Dtype> &arr) const
+template<typename U>
+bool Array<Dtype>::has_same_shape(const Array<U> &arr) const
 {
     bool res;
     res = (total_ == arr.total_) && (n_ == arr.n_)

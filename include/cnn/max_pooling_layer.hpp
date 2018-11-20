@@ -38,9 +38,18 @@ class MaxPoolingLayer : public Layer<Dtype>
             const std::vector<Array<Dtype>*>& bottom_gradient,
             const std::vector<const Array<Dtype>*>& top,
             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
+ private:
+    std::pair<int, int> find_max_index(
+            const Dtype* arr,
+            int width,
+            int h,
+            int w) const;
  private:
     int win_size_;
     int stride_;
+
+    Array<std::pair<int, int>> max_index_pair_;
 };
 
 }  // namespace cnn

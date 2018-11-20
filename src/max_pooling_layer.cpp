@@ -39,6 +39,8 @@ void MaxPoolingLayer<Dtype>::reshape(
             h,
             w);
 
+    max_index_pair_.init_like(*top[0]);
+
     if (this->proto_.phase() == TRAIN)
     {
         CHECK_EQ(bottom_gradient.size(), 1);
@@ -58,15 +60,68 @@ void MaxPoolingLayer<Dtype>::fprop(
         const std::vector<const Array<Dtype>*>& bottom,
         const std::vector<Array<Dtype>*>& top)
 {
+    const auto& b = *bottom[0];
+    auto& t = *top[0];
+    for (int n = 0; n < t.n_; n++)
+    for (int c = 0; c < t.c_; c++)
+    for (int h = 0; h < t.h_; h++)
+    for (int w = 0; w < t.w_; w++)
+    {
+        auto p = find_max_index(
+                &b(n, c, 0, 0),
+                b.w_,
+                h*stride_,
+                w*stride_);
+
+        t(n, c, h, w) = b(n, c, p.first, p.second);
+        max_index_pair_(n, c, h, w) = p;
+    }
 }
 
 template<typename Dtype>
 void MaxPoolingLayer<Dtype>::bprop(
-        const std::vector<const Array<Dtype>*>& bottom,
+        const std::vector<const Array<Dtype>*>& /*bottom*/,
         const std::vector<Array<Dtype>*>& bottom_gradient,
         const std::vector<const Array<Dtype>*>& /*top*/,
         const std::vector<const Array<Dtype>*>& top_gradient)
 {
+    auto& bg = *bottom_gradient[0];
+    const auto& tg = *top_gradient[0];
+    for (int n = 0; n < tg.n_; n++)
+    for (int c = 0; c < tg.c_; c++)
+    for (int h = 0; h < tg.h_; h++)
+    for (int w = 0; w < tg.w_; w++)
+    {
+        const auto& p = max_index_pair_(n, c, h, w);
+        bg(n, c, p.first, p.second) += tg(n, c, h, w);
+    }
+}
+
+template<typename Dtype>
+std::pair<int, int> MaxPoolingLayer<Dtype>::find_max_index(
+        const Dtype* arr,
+        int width,
+        int h,
+        int w) const
+{
+    // find the index of the max value in the window
+    // [h, h+win_size_) x [w, w+win_size_)
+    Dtype max_val = arr[h*width + w];
+    int max_h = h;
+    int max_w = w;
+
+    for (int i = h; i < h + win_size_; i++)
+    for (int j = w; j < w + win_size_; j++)
+    {
+        const auto& val = arr[i*width + j];
+        if (val > max_val)
+        {
+            max_val = val;
+            max_h = i;
+            max_w = j;
+        }
+    }
+    return {max_h, max_w};
 }
 
 }  // namespace cnn
