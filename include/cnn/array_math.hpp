@@ -193,7 +193,9 @@ template<typename Dtype>
 void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev)
 {
     extern std::default_random_engine g_generator;
-    std::normal_distribution<Dtype> distribution(mean, stddev);
+    // we use double instead of Dtype here because it causes
+    // error on Linux when Dtype is Jet<>
+    std::normal_distribution<double> distribution(mean, stddev);
     for (int i = 0; i < arr->total_; i++)
     {
         arr->d_[i] = distribution(g_generator);

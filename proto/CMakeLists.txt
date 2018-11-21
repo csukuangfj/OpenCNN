@@ -13,7 +13,6 @@ add_library(
 
 target_link_libraries(
     cnn_proto
-    ${Protobuf_LIBRARIES}
+    ${MY_PROTOBUF_LIBS}
     )
-
 

@@ -100,7 +100,6 @@ template<typename Dtype>
 void data_callback(const std::vector<cnn::Array<Dtype>*> &top)
 {
     static int k = 0;
-    k = 0;
     int n = top[0]->n_;
     CHECK_LE(n, g_train_images.size())
         << "the batch size cannot be larger than the dataset size";

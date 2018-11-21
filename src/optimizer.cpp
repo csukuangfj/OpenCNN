@@ -44,7 +44,8 @@ void Optimizer<Dtype>::start_training()
         network_->fprop();
         network_->bprop();
         update_parameters();
-        LOG(INFO) << "iter: " << i << "," << "loss is: " << network_->get_loss();
+        LOG(INFO) << "iter: " << i <<","
+            << "loss is: " << network_->get_loss();
         of << i << "," << network_->get_loss() << "\n";
     }
 
