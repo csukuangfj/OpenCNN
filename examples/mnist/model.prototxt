@@ -1,0 +1,92 @@
+
+layer_proto {
+    name: "input"
+    type: INPUT
+    top: "data"
+    top: "label"
+    input_proto {
+        n: 64
+        c: 1
+        h: 28
+        w: 28
+    }
+}
+
+layer_proto {
+    name: "conv1"
+    type: CONVOLUTION
+    bottom: "data"
+    top: "conv1"
+    conv_proto {
+        num_output: 20
+        kernel_size: 5
+    }
+}
+
+layer_proto {
+    name: "pool1"
+    type: MAX_POOLING
+    bottom: "conv1"
+    top: "pool1"
+    max_pooling_proto {
+        win_size: 2
+        stride: 2
+    }
+}
+
+layer_proto {
+    name: "conv2"
+    type: CONVOLUTION
+    bottom: "pool1"
+    top: "conv2"
+    conv_proto {
+        num_output: 50
+        kernel_size: 5
+    }
+}
+
+layer_proto {
+    name: "pool2"
+    type: MAX_POOLING
+    bottom: "conv2"
+    top: "pool2"
+    max_pooling_proto {
+        win_size: 2
+        stride: 2
+    }
+}
+
+layer_proto {
+    name: "fc1"
+    type: FULL_CONNECTED
+    bottom: "pool2"
+    top: "fc1"
+    fc_proto {
+        num_output: 500
+    }
+}
+
+layer_proto {
+    name: "relu1"
+    type: RELU
+    bottom: "fc1"
+    top: "relu1"
+}
+
+layer_proto {
+    name: "fc2"
+    type: FULL_CONNECTED
+    bottom: "relu1"
+    top: "fc2"
+    fc_proto {
+        num_output: 10
+    }
+}
+
+layer_proto {
+    name: "softmax_log_loss"
+    type: SOFTMAX_WITH_LOG_LOSS
+    bottom: "fc2"
+    bottom: "label"
+    top: "loss"
+}

@@ -44,7 +44,7 @@ void Optimizer<Dtype>::start_training()
         network_->fprop();
         network_->bprop();
         update_parameters();
-        LOG(INFO) << "loss is: " << network_->get_loss();
+        LOG(INFO) << "iter: " << i << "," << "loss is: " << network_->get_loss();
         of << i << "," << network_->get_loss() << "\n";
     }
 
@@ -100,7 +100,7 @@ void Optimizer<Dtype>::update_parameters()
             ss << "\n";
         }
     }
-    LOG(WARNING) << ss.str();
+    // LOG(WARNING) << ss.str();
 }
 
 template<typename Dtype>
@@ -115,6 +115,7 @@ void Optimizer<Dtype>::print_parameters()
     // we skip the input layer since it has no parameters
     for (int i = 1; i < num_layers; i++)
     {
+#if 0
         auto param = layers[i]->mutable_param();
         if (param.empty()) continue;
         ss << "parameters for layer: " << layers[i]->proto().name();
@@ -141,6 +142,7 @@ void Optimizer<Dtype>::print_parameters()
             }
             ss << "\n";
         }
+#endif
     }
 
     LOG(INFO) << ss.str();

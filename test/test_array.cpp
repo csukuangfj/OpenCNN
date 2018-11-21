@@ -196,5 +196,65 @@ TYPED_TEST(ArrayTest, proto)
     }
 }
 
+TYPED_TEST(ArrayTest, move_constructor)
+{
+    Array<TypeParam> a;
+
+    a.init(2, 3, 4, 5);
+    for (int i = 0; i < a.total_; i++)
+    {
+        a[i] = i;
+    }
+
+    Array<TypeParam> b = std::move(a);
+    EXPECT_EQ(a.n_, 0);
+    EXPECT_EQ(a.c_, 0);
+    EXPECT_EQ(a.h_, 0);
+    EXPECT_EQ(a.w_, 0);
+    EXPECT_EQ(a.total_, 0);
+    EXPECT_EQ(a.d_, nullptr);
+
+    EXPECT_EQ(b.n_, 2);
+    EXPECT_EQ(b.c_, 3);
+    EXPECT_EQ(b.h_, 4);
+    EXPECT_EQ(b.w_, 5);
+    EXPECT_EQ(b.total_, 2*3*4*5);
+    for (int i = 0; i < b.total_; i++)
+    {
+        EXPECT_EQ(b[i], i);
+    }
+}
+
+TYPED_TEST(ArrayTest, move_assignment)
+{
+    Array<TypeParam> a;
+
+    a.init(2, 3, 4, 5);
+    for (int i = 0; i < a.total_; i++)
+    {
+        a[i] = i;
+    }
+
+    Array<TypeParam> b;
+    b = std::move(a);
+
+    EXPECT_EQ(a.n_, 0);
+    EXPECT_EQ(a.c_, 0);
+    EXPECT_EQ(a.h_, 0);
+    EXPECT_EQ(a.w_, 0);
+    EXPECT_EQ(a.total_, 0);
+    EXPECT_EQ(a.d_, nullptr);
+
+    EXPECT_EQ(b.n_, 2);
+    EXPECT_EQ(b.c_, 3);
+    EXPECT_EQ(b.h_, 4);
+    EXPECT_EQ(b.w_, 5);
+    EXPECT_EQ(b.total_, 2*3*4*5);
+    for (int i = 0; i < b.total_; i++)
+    {
+        EXPECT_EQ(b[i], i);
+    }
+}
+
 }  // namespace cnn
 

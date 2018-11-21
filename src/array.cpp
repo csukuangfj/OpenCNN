@@ -27,6 +27,54 @@ Array<Dtype>::~Array()
 }
 
 template<typename Dtype>
+Array<Dtype>::Array(Array<Dtype>&& arr)
+{
+    n_ = arr.n_;
+    c_ = arr.c_;
+    h_ = arr.h_;
+    w_ = arr.w_;
+    total_ = arr.total_;
+    d_ = arr.d_;
+
+    arr.n_ = 0;
+    arr.c_ = 0;
+    arr.h_ = 0;
+    arr.w_ = 0;
+    arr.total_ = 0;
+    arr.d_ = nullptr;
+}
+
+template<typename Dtype>
+Array<Dtype>& Array<Dtype>::operator=(Array<Dtype>&& arr)
+{
+    if (this == &arr)
+    {
+        return *this;
+    }
+
+    if (d_)
+    {
+        delete[] d_;
+    }
+
+    n_ = arr.n_;
+    c_ = arr.c_;
+    h_ = arr.h_;
+    w_ = arr.w_;
+    total_ = arr.total_;
+    d_ = arr.d_;
+
+    arr.n_ = 0;
+    arr.c_ = 0;
+    arr.h_ = 0;
+    arr.w_ = 0;
+    arr.total_ = 0;
+    arr.d_ = nullptr;
+
+    return *this;
+}
+
+template<typename Dtype>
 template<typename U>
 void Array<Dtype>::init_like(const Array<U> &arr)
 {

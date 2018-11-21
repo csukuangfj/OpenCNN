@@ -119,8 +119,6 @@ TYPED_TEST(MaxPoolingLayerTest, fprop)
             {&this->bottom_},
             {&this->top_});
 
-    TypeParam expected;
-
     const auto& t = this->top_;
 
     EXPECT_EQ(t[0], 8);

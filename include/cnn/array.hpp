@@ -17,6 +17,9 @@ class Array
     Array(const Array<Dtype>&) = delete;
     Array& operator=(const Array<Dtype>&) = delete;
 
+    Array(Array<Dtype>&&);
+    Array& operator=(Array<Dtype>&&);
+
     void init(int n, int c, int h, int w);
 
     template<typename U>

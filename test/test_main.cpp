@@ -37,6 +37,7 @@ GTEST_API_ int main(int argc, char **argv)
     FLAGS_alsologtostderr = true;
     FLAGS_colorlogtostderr = true;
 
+    // ::testing::GTEST_FLAG(filter) = "ArrayTest*";
     // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
     // ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
@@ -52,11 +53,11 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
     // ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
     // ::testing::GTEST_FLAG(filter) = "ReLULayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*";
+    ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*fprop*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*jet*";
     // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
     //
-    ::testing::GTEST_FLAG(filter) = "io_test*";
+    // ::testing::GTEST_FLAG(filter) = "io_test*";
 
     testing::InitGoogleTest(&argc, argv);
 
