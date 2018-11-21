@@ -58,7 +58,7 @@ void SoftmaxLayer<Dtype>::fprop(
         Dtype max_val = b(n, 0, h, w);
         for (int c = 1; c < b.c_; c++)
         {
-            max_val = (b(n, c, h, w) > max_val) ? buffer_[c] : max_val;
+            max_val = (b(n, c, h, w) > max_val) ? b(n, c, h, w) : max_val;
         }
 
         for (int c = 0; c < b.c_; c++)
