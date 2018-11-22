@@ -31,6 +31,10 @@ void Optimizer<Dtype>::init(const OptimizerProto& _proto)
 
     auto network_filename = proto_.model_filename();
     network_.reset(new Network<Dtype>(network_filename));
+    if (proto_.has_trained_filename())
+    {
+        network_->copy_trained_network(proto_.trained_filename(), true);
+    }
 }
 
 template<typename Dtype>
@@ -52,7 +56,7 @@ void Optimizer<Dtype>::start_training()
     LOG(INFO) << "iteration: " << max_iter;
     LOG(INFO) << "loss is: " << network_->get_loss();
     print_parameters();
-    network_->save_network("trained.prototxt");
+    network_->save_network("trained-bin.prototxt", true);
 }
 
 template<typename Dtype>

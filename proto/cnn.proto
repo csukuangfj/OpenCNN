@@ -17,6 +17,7 @@ message OptimizerProto
     optional double learning_rate = 2;
     optional int32 max_iteration_num = 3;   // maximum number of iterations
     optional int32 print_num         = 4 [default = 1000];   // print after this number of iterations
+    optional string trained_filename = 5;  // if present, copy weights from it
 }
 
 message NetworkProto

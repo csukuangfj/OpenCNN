@@ -78,6 +78,8 @@ class Layer
         }
     }
 
+    void copy_trained_layer(const LayerProto& p);
+
     /**
      * At layer construction, we have no idea of the shape of its inputs,
      * so this function MUST be called after constructing the whole network.

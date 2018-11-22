@@ -65,5 +65,27 @@ Layer<Dtype>::create(const LayerProto& _proto)
     return res;
 }
 
+template<typename Dtype>
+void Layer<Dtype>::copy_trained_layer(const LayerProto& p)
+{
+    CHECK_EQ(proto_.name(), p.name());
+    CHECK_EQ(proto_.type(), p.type());
+    CHECK_EQ(proto_.top_size(), p.top_size());
+    CHECK_EQ(proto_.bottom_size(), p.bottom_size());
+
+    if (param_.size())
+    {
+        CHECK_EQ(param_.size(), p.param_size());
+        param_.clear();
+    }
+
+    for (int i = 0; i < p.param_size(); i++)
+    {
+        auto arr = std::make_shared<Array<Dtype>>();
+        arr->from_proto(p.param(i));
+        param_.push_back(arr);
+    }
+}
+
 }  // namespace cnn
 

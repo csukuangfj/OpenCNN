@@ -20,6 +20,8 @@ class Network
     void init(const std::string &filename, bool is_binary = false);
     void init(const NetworkProto&);
 
+    void copy_trained_network(const std::string& filename, bool is_binary = false);
+
     const NetworkProto& proto() const {return proto_;}
     NetworkProto& proto() {return proto_;}
 
