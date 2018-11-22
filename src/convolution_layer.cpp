@@ -111,6 +111,7 @@ void ConvolutionLayer<Dtype>::fprop(
 {
     const auto& b = *bottom[0];
     auto& t = *top[0];
+    set_to<Dtype>(&t, 0);
 
     int h = b.h_;
     int w = b.w_;
