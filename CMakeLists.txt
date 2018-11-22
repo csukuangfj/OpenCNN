@@ -36,7 +36,7 @@ target_link_libraries(
     ${GLOG_LIBRARIES}
     )
 
-add_subdirectory(test)
+# add_subdirectory(test)
 
 add_subdirectory(tools)
 add_subdirectory(examples)

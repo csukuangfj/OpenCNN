@@ -48,9 +48,19 @@ void Optimizer<Dtype>::start_training()
         network_->fprop();
         network_->bprop();
         update_parameters();
-        LOG(INFO) << "iter: " << i <<","
-            << "loss is: " << network_->get_loss();
+
+        if (i && !(i%proto_.print_interval()))
+        {
+            LOG(INFO) << "iter: " << i <<","
+                << "loss is: " << network_->get_loss();
+        }
         of << i << "," << network_->get_loss() << "\n";
+
+        if (i && !(i%proto_.snapshot_interval()))
+        {
+            auto filename = proto_.snapshot_prefix() + "-" + std::to_string(i);
+            network_->save_network(filename, true);
+        }
     }
 
     LOG(INFO) << "iteration: " << max_iter;

@@ -2,5 +2,7 @@
 model_filename: "../examples/mnist/model_for_train.prototxt"
 trained_filename: "trained-bin.prototxt"
 learning_rate: 0.0001
-max_iteration_num: 100
-print_num: 1
+max_iteration_num: 2
+print_interval: 1
+snapshot_interval: 5
+snapshot_prefix: "mnist-bin"

@@ -16,8 +16,10 @@ message OptimizerProto
     optional string model_filename = 1;
     optional double learning_rate = 2;
     optional int32 max_iteration_num = 3;   // maximum number of iterations
-    optional int32 print_num         = 4 [default = 1000];   // print after this number of iterations
-    optional string trained_filename = 5;  // if present, copy weights from it
+    optional int32 print_interval    = 4 [default = 1000];   // print after every multiple of this number of iterations
+    optional string trained_filename  = 5;  // a binary file; if present, copy weights from it
+    optional int32 snapshot_interval  = 6;  // save trained weights after every multiple of this number of iterations
+    optional string snapshot_prefix   = 7;  // prefix of the snapshot
 }
 
 message NetworkProto
