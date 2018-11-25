@@ -249,8 +249,27 @@ void Network<Dtype>::bprop()
 }
 
 template<typename Dtype>
+void Network<Dtype>::set_phase(Phase phase)
+{
+    if (phase_ == phase)
+    {
+        return;
+    }
+
+    for (auto& _layer : layers_)
+    {
+        _layer->proto().set_phase(phase);
+    }
+
+    phase_ = phase;
+}
+
+template<typename Dtype>
 void Network<Dtype>::perform_predication()
 {
+    auto saved_phase = phase_;
+    set_phase(TEST);
+
     // we assume that the user has already setup the input data
     // via get_data_top(0)
     for (int i = 1; i < layers_.size(); i++)
@@ -259,6 +278,7 @@ void Network<Dtype>::perform_predication()
                 get_data_bottom(i),
                 get_data_top_mutable(i));
     }
+    set_phase(saved_phase);
 }
 
 template<typename Dtype>

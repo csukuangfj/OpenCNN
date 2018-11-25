@@ -34,6 +34,9 @@ class Network
     /** backward propagation */
     void bprop();
 
+    void set_phase(Phase phase);
+    void get_phase() const {return phase_;}
+
     Dtype get_loss() const
     {
         return get_data_top(layers_.size()-1)[0]->d_[0];
@@ -106,6 +109,8 @@ class Network
     std::vector<std::shared_ptr<Layer<Dtype>>> layers_;
 
     std::function<void(const std::vector<Array<Dtype>*>& top)> data_callback_;
+
+    Phase phase_;
 };
 
 }  // namespace cnn

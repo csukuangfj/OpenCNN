@@ -38,6 +38,7 @@ enum LayerType
     CONVOLUTION     = 6;
     RELU            = 7;
     MAX_POOLING     = 8;
+    DROP_OUT        = 9;
 }
 
 // same as caffe
@@ -60,6 +61,7 @@ message LayerProto
     optional FullConnectedLayerProto fc_proto   = 8;
     optional ConvolutionLayerProto conv_proto   = 9;
     optional MaxPoolingLayerProto max_pooling_proto = 10;
+    optional DropoutLayerProto dropout_proto    = 11;
 }
 
 message InputLayerProto
@@ -87,5 +89,10 @@ message MaxPoolingLayerProto
 {
     optional int32 win_size  = 1;  // size of a square window
     optional int32 stride = 2;  // stride of the window
+}
+
+message DropoutLayerProto
+{
+    optional double keep_prob = 1;  // the probability to retain the output
 }
 

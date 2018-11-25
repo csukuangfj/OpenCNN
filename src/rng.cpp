@@ -1,6 +1,7 @@
 
-
 #include <random>
+
+#include "cnn/rng.hpp"
 
 namespace cnn
 {
@@ -20,5 +21,21 @@ int uniform(int low, int high)
     return distribution(g_generator);
 }
 
+// refer to
+// http://www.cplusplus.com/reference/random/normal_distribution/normal_distirbution/
+double gaussian(double mean, double stddev)
+{
+    std::normal_distribution<double> distribution(mean, stddev);
+    return distribution(g_generator);
+}
+
+
+// refer to
+// http://www.cplusplus.com/reference/random/bernoulli_distribution/bernoulli_distribution/
+bool bernoulli(double p)
+{
+    std::bernoulli_distribution distribution(p);
+    return distribution(g_generator);
+}
 
 }  // namespace cnn

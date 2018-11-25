@@ -90,5 +90,15 @@ TYPED_TEST(LayerTest, create_max_pooling)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_dropout)
+{
+    LayerProto proto;
+    proto.set_type(DROP_OUT);
+    auto* p = proto.mutable_dropout_proto();
+    p->set_keep_prob(0.8);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

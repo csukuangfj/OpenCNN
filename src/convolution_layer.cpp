@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "cnn/convolution_layer.hpp"
+#include "cnn/rng.hpp"
 
 namespace
 {

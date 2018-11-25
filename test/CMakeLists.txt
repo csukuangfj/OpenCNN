@@ -20,6 +20,8 @@ add_executable(gtest
     test_convolution_layer.cpp
     test_relu_layer.cpp
     test_max_pooling_layer.cpp
+    test_rng.cpp
+    test_drop_out_layer.cpp
     )
 target_link_libraries(
     gtest

@@ -16,15 +16,10 @@ TYPED_TEST_CASE(OptimizerTest, MyTypes);
 
 TYPED_TEST(OptimizerTest, init)
 {
-    std::string filename = "../proto/optimizer.prototxt";
-    Optimizer<TypeParam> opt(filename);
 }
 
 TYPED_TEST(OptimizerTest, training)
 {
-    std::string filename = "../proto/optimizer.prototxt";
-    Optimizer<TypeParam> opt(filename);
-    opt.start_training();
 }
 
 }  // namespace cnn

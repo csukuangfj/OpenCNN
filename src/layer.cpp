@@ -1,6 +1,7 @@
 #include <glog/logging.h>
 
 #include "cnn/convolution_layer.hpp"
+#include "cnn/drop_out_layer.hpp"
 #include "cnn/full_connected_layer.hpp"
 #include "cnn/input_layer.hpp"
 #include "cnn/jet.hpp"
@@ -52,6 +53,7 @@ Layer<Dtype>::create(const LayerProto& _proto)
         CREATE_LAYER(CONVOLUTION, ConvolutionLayer);
         CREATE_LAYER(RELU, ReLULayer);
         CREATE_LAYER(MAX_POOLING, MaxPoolingLayer);
+        CREATE_LAYER(DROP_OUT, DropoutLayer);
 
         default:
             LOG(FATAL) << "Unknown layer type: "

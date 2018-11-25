@@ -5,6 +5,7 @@
 #include "cnn/array_math.hpp"
 #include "cnn/full_connected_layer.hpp"
 #include "cnn/jet.hpp"
+#include "cnn/rng.hpp"
 
 namespace cnn
 {

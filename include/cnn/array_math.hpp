@@ -1,27 +1,10 @@
 #pragma once
 
-#include <random>
 
 #include "cnn/array.hpp"
 
 namespace cnn
 {
-
-/**
- * Set the seed for the random number generator.
- * @param val the value of the seed.
- */
-void set_seed(int val);
-
-/**
- * Return a uniformly distributed random value in the given
- * interval. Both ends are inclusive.
- *
- * @param low the lower bound, inclusive
- * @param high the upper bound, inclusive
- * @return a random value uniformly distributed in the interval [low, high].
- */
-int uniform(int low, int high);
 
 /**
  *
@@ -176,40 +159,6 @@ void sub_scalar(int n, Dtype alpha, const Dtype* src, Dtype* dst)
     }
 }
 
-/**
- * Fill the array with random values drawn from a guassian
- * distribution with the given mean and standard deviation.
- *
- * @param arr the array to be filled
- * @param mean mean for the normal distribution
- * @param stddev standard deviation for the normal distribution
- *
- * @note variance is equal to the square of the standard deviation
- */
-
-// refer to
-// http://www.cplusplus.com/reference/random/normal_distribution/normal_distirbution/
-template<typename Dtype>
-void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev)
-{
-    extern std::default_random_engine g_generator;
-    // we use double instead of Dtype here because it causes
-    // error on Linux when Dtype is Jet<>
-    std::normal_distribution<double> distribution(mean, stddev);
-    for (int i = 0; i < arr->total_; i++)
-    {
-        arr->d_[i] = distribution(g_generator);
-    }
-}
-
-template<typename Dtype>
-void uniform(Array<Dtype>* arr, int low, int high)
-{
-    for (int i = 0; i < arr->total_; i++)
-    {
-        arr->d_[i] = uniform(low, high);
-    }
-}
 
 
 }  // namespace cnn
