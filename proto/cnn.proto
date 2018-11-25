@@ -39,6 +39,7 @@ enum LayerType
     RELU            = 7;
     MAX_POOLING     = 8;
     DROP_OUT        = 9;
+    BATCH_NORMALIZATION = 10;
 }
 
 // same as caffe

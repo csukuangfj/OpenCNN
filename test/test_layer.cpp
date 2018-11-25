@@ -100,5 +100,13 @@ TYPED_TEST(LayerTest, create_dropout)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_batch_normalization)
+{
+    LayerProto proto;
+    proto.set_type(BATCH_NORMALIZATION);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

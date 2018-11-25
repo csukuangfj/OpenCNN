@@ -1,5 +1,6 @@
 #include <glog/logging.h>
 
+#include "cnn/batch_normalization_layer.hpp"
 #include "cnn/convolution_layer.hpp"
 #include "cnn/drop_out_layer.hpp"
 #include "cnn/full_connected_layer.hpp"
@@ -54,6 +55,7 @@ Layer<Dtype>::create(const LayerProto& _proto)
         CREATE_LAYER(RELU, ReLULayer);
         CREATE_LAYER(MAX_POOLING, MaxPoolingLayer);
         CREATE_LAYER(DROP_OUT, DropoutLayer);
+        CREATE_LAYER(BATCH_NORMALIZATION, BatchNormalizationLayer);
 
         default:
             LOG(FATAL) << "Unknown layer type: "
