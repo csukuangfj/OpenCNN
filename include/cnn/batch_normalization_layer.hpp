@@ -71,6 +71,11 @@ class BatchNormalizationLayer : public Layer<Dtype>
 
     /** moving_mean = moving_mean*momentum + mini_batch_mean*(1-momentum) */
     Dtype momentum_;
+
+    // the following variables are used only in the train phase
+    Array<Dtype> x_minus_mu_;   //!< saves x - mini_batch_mean
+    Array<Dtype> mu_;           //!< mini_batch_mean
+    Array<Dtype> var_;          //!< mini_batch_variance
 };
 
 }  // namespace cnn

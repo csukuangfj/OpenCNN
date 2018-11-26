@@ -40,6 +40,7 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "ArrayTest*";
     // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
     // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*";
+    // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*bprop*";
     // ::testing::GTEST_FLAG(filter) = "LayerTest*";
     // ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "DropoutLayerTest*";

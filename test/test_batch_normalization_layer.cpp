@@ -411,5 +411,189 @@ print(f*gamma + beta)
     EXPECT_NEAR(t[7], 21.82050477, 1e-5);
 }
 
+TYPED_TEST(BatchNormalizationLayerTest, bprop_with_jet_gamma)
+{
+    static constexpr int N = 3;
+    static constexpr int C = 2;
+    static constexpr int H = 5;
+    static constexpr int W = 4;
+    static constexpr int DIM = C;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(BATCH_NORMALIZATION);
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    for (int i = 0; i < 5; i++)
+    {
+        gaussian<Type>(layer->mutable_param()[0], 0, 1);
+        gaussian<Type>(layer->mutable_param()[1], 0, 1);
+        for (int i = 0; i < DIM; i++)
+        {
+            layer->param()[0]->d_[i].v_[i] = 1;
+        }
+
+        uniform<Type>(&bottom, -100, 100);
+        uniform<Type>(&top_gradient, -100, 100);
+        set_to<Type>(layer->mutable_gradient()[0], 0);
+
+        layer->fprop({&bottom}, {&top});
+        layer->bprop(
+                {&bottom},
+                {&bottom_gradient},
+                {&top},
+                {&top_gradient});
+
+        Type s = TypeParam(0);
+        for (int i = 0; i < top.total_; i++)
+        {
+            s += top[i]*top_gradient[i].a_;
+        }
+
+        for (int i = 0; i < DIM; i++)
+        {
+            TypeParam expected = s.v_[i];
+            EXPECT_NEAR(layer->gradient()[0]->d_[i].a_ / expected, 1, 1e-5);
+        }
+    }
+}
+
+TYPED_TEST(BatchNormalizationLayerTest, bprop_with_jet_beta)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = C;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(BATCH_NORMALIZATION);
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+
+    for (int i = 0; i < 5; i++)
+    {
+        gaussian<Type>(layer->mutable_param()[0], 0, 1);
+        gaussian<Type>(layer->mutable_param()[1], 0, 1);
+        for (int i = 0; i < DIM; i++)
+        {
+            layer->param()[1]->d_[i].v_[i] = 1;
+        }
+
+        uniform<Type>(&bottom, -100, 100);
+        uniform<Type>(&top_gradient, -100, 100);
+        set_to<Type>(layer->mutable_gradient()[1], 0);
+
+        layer->fprop({&bottom}, {&top});
+        layer->bprop(
+                {&bottom},
+                {&bottom_gradient},
+                {&top},
+                {&top_gradient});
+
+        Type s = TypeParam(0);
+        for (int i = 0; i < top.total_; i++)
+        {
+            s += top[i]*top_gradient[i].a_;
+        }
+
+        for (int i = 0; i < DIM; i++)
+        {
+            TypeParam expected = s.v_[i];
+            EXPECT_NEAR(layer->gradient()[1]->d_[i].a_ / expected, 1, 1e-5);
+        }
+    }
+}
+
+TYPED_TEST(BatchNormalizationLayerTest, bprop_with_jet_input)
+{
+    static constexpr int N = 2;
+    static constexpr int C = 3;
+    static constexpr int H = 4;
+    static constexpr int W = 5;
+    static constexpr int DIM = N*C*H*W;
+
+    using Type = Jet<TypeParam, DIM>;
+
+    LayerProto proto;
+    proto.set_phase(TRAIN);
+    proto.set_type(BATCH_NORMALIZATION);
+    auto layer = Layer<Type>::create(proto);
+
+    Array<Type> bottom;
+    Array<Type> bottom_gradient;
+    Array<Type> top;
+    Array<Type> top_gradient;
+
+    bottom.init(N, C, H, W);
+    layer->reshape(
+            {&bottom},
+            {&bottom_gradient},
+            {&top},
+            {&top_gradient});
+
+    for (int i = 0; i < 8; i++)
+    {
+        uniform<Type>(&bottom, -100, 100);
+        for (int i = 0; i < DIM; i++)
+        {
+            bottom[i].v_[i] = 1;
+        }
+
+        gaussian<Type>(layer->mutable_param()[0], 0, 1);
+        gaussian<Type>(layer->mutable_param()[1], 0, 1);
+
+        uniform<Type>(&top_gradient, -100, 100);
+
+        layer->fprop({&bottom}, {&top});
+        layer->bprop(
+                {&bottom},
+                {&bottom_gradient},
+                {&top},
+                {&top_gradient});
+
+        Type s = TypeParam(0);
+        for (int i = 0; i < top.total_; i++)
+        {
+            s += top[i]*top_gradient[i].a_;
+        }
+
+        for (int i = 0; i < DIM; i++)
+        {
+            TypeParam expected = s.v_[i];
+            EXPECT_NEAR(bottom_gradient[i].a_ / expected, 1, 1e-4);
+        }
+    }
+}
+
 }  // namespace cnn
 

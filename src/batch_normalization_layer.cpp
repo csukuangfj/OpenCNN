@@ -78,6 +78,10 @@ void BatchNormalizationLayer<Dtype>::reshape(
 
         this->gradient_[0]->init_like(*this->param_[0]);    // channel scale
         this->gradient_[1]->init_like(*this->param_[1]);    // channel bias
+
+        x_minus_mu_.init_like(*top[0]);
+        mu_.init_like(*this->gradient_[0]);
+        var_.init_like(mu_);
     }
 }
 
@@ -105,6 +109,7 @@ void BatchNormalizationLayer<Dtype>::fprop(
 
             // compute the mean
             Dtype mean = total / num_batch_elements;
+            mu_[c] = mean;
 
             auto& moving_mean = this->param_[2]->d_[c];
             if (moving_mean == 0)
@@ -120,19 +125,24 @@ void BatchNormalizationLayer<Dtype>::fprop(
             // subtract the mean
             for (int n = 0; n < b.n_; n++)
             {
-                sub_scalar(num_elements, mean, &b(n, c, 0, 0), &t(n, c, 0, 0));
+                sub_scalar(num_elements,
+                        mean,
+                        &b(n, c, 0, 0),
+                        &x_minus_mu_(n, c, 0, 0));
             }
 
             // compute the sum of square (x - mu)*(x - mu)
             total = 0;
             for (int n = 0; n < b.n_; n++)
             {
-                total += sum_squared_arr(num_elements, &t(n, c, 0, 0));
+                total += sum_squared_arr(num_elements,
+                        &x_minus_mu_(n, c, 0, 0));
             }
 
             total /= num_batch_elements;
 
             Dtype var = total + eps_;
+            var_[c] = var;
             Dtype stddev = sqrt(var);
 
             auto& moving_stddev = this->param_[3]->d_[c];
@@ -153,7 +163,7 @@ void BatchNormalizationLayer<Dtype>::fprop(
             {
                 scale_arr(num_elements,
                         scale,
-                        &t(n, c, 0, 0),
+                        &x_minus_mu_(n, c, 0, 0),
                         &t(n, c, 0, 0));
 
                 sub_scalar(num_elements,
@@ -201,10 +211,81 @@ void BatchNormalizationLayer<Dtype>::fprop(
 template<typename Dtype>
 void BatchNormalizationLayer<Dtype>::bprop(
         const std::vector<const Array<Dtype>*>& /*bottom*/,
-        const std::vector<Array<Dtype>*>& /*bottom_gradient*/,
-        const std::vector<const Array<Dtype>*>& /*top*/,
-        const std::vector<const Array<Dtype>*>& /*top_gradient*/)
+        const std::vector<Array<Dtype>*>& bottom_gradient,
+        const std::vector<const Array<Dtype>*>& top,
+        const std::vector<const Array<Dtype>*>& top_gradient)
 {
+    auto& bg = *bottom_gradient[0];
+
+    const auto& t = *top[0];
+    const auto& tg = *top_gradient[0];
+
+    const auto& gamma = *this->param_[0];
+    const auto& beta = *this->param_[1];
+
+    auto& gamma_grad = *this->gradient_[0];
+    auto& beta_grad = *this->gradient_[1];
+
+    for (int n = 0; n < t.n_; n++)
+    for (int c = 0; c < t.c_; c++)
+    for (int h = 0; h < t.h_; h++)
+    for (int w = 0; w < t.w_; w++)
+    {
+        // gradient for gamma
+        gamma_grad[c] += tg(n, c, h, w) * (t(n, c, h, w) - beta[c])/gamma[c];
+
+        // gradient for beta
+        beta_grad[c] += tg(n, c, h, w);
+    }
+
+    auto num_elements = tg.h_ * tg.w_;
+    Dtype num_batch_elements = num_elements * tg.n_;
+    for (int c = 0; c < t.c_; c++)
+    {
+        // gradient for the variance
+        Dtype var = var_[c];
+        Dtype stddev = sqrt(var);
+        Dtype stddev3 = stddev * stddev * stddev;
+
+        Dtype var_grad = 0;
+        for (int n = 0; n < t.n_; n++)
+        {
+            var_grad += ax_dot_by<Dtype>(
+                    num_elements,
+                    1,
+                    &tg(n, c, 0, 0),
+                    1,
+                    &x_minus_mu_(n, c, 0, 0));
+        }
+        var_grad *= gamma[c] / Dtype(-2) / stddev3;
+
+        // gradient with respect to the mean
+        Dtype mu_grad = 0;
+        Dtype mu_grad1 = 0;
+        Dtype mu_grad2 = 0;
+        for (int n = 0; n < t.n_; n++)
+        {
+            mu_grad1 += sum_arr(num_elements, &tg(n, c, 0, 0));
+            mu_grad2 += sum_arr(num_elements, &x_minus_mu_(n, c, 0, 0));
+        }
+        mu_grad1 *= gamma[c] / (-stddev);
+        mu_grad2 *= var_grad * Dtype(-2) / num_batch_elements;
+
+        mu_grad = mu_grad1 + mu_grad2;
+
+        // now for the bottom input
+        for (int n = 0; n < tg.n_; n++)
+        for (int h = 0; h < tg.h_; h++)
+        for (int w = 0; w < tg.w_; w++)
+        {
+            Dtype part1 = gamma[c] * tg(n, c, h, w) / stddev;
+            Dtype part2 = var_grad * Dtype(2) / num_batch_elements
+                * x_minus_mu_(n, c, h, w);
+            Dtype part3 = mu_grad / num_batch_elements;
+
+            bg(n, c, h, w) = part1 + part2 + part3;
+        }
+    }
 }
 
 }  // namespace cnn
