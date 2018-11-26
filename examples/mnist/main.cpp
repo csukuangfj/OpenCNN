@@ -206,7 +206,7 @@ void do_testing()
 
     std::string filename = "../examples/mnist/model_for_deploy.prototxt";
     std::string trained = "./trained-bin.prototxt";
-    // trained = "./mnist-bin.prototxt-500";
+    trained = "./mnist-bin.prototxt-20000";
     cnn::Network<double> network(filename);
     network.copy_trained_network(trained, true);
     network.set_phase(cnn::TEST);
@@ -215,8 +215,8 @@ void do_testing()
     int correct = 0;
     int total = 0;
 
-    for (int i = 0; i < 1000; i++)
-    // for (int i = 0; i < g_test_images.size(); i++)
+    // for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < g_test_images.size(); i++)
     {
         auto& data = *network.get_data_top_mutable(0)[0];
         const auto& img = g_test_images[i];

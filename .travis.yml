@@ -45,3 +45,4 @@ install:
 
 script:
     - bash travis/script.sh
+    - bash travis/mnist-test.sh
