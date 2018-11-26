@@ -1,0 +1,49 @@
+# Travis CI for OpenCNN
+#
+# Author: Fangjun Kuang, cuskuangfj <at> gmail <dot> com
+# Date: November 26, 2018
+#
+#
+
+os:
+  - linux
+  - osx
+
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  exclude:
+   - os: linux
+     compiler: clang
+
+env:
+  - CXX_FLAGS=-std=c++11
+
+# https://docs.travis-ci.com/user/installing-dependencies#Installing-Packages-with-the-APT-Addon
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.7
+    packages:
+    - g++-4.9
+    - clang-3.7
+    - build-essential
+    - cmake
+    - git
+    - libgflags-dev
+    - libgoogle-glog-dev
+    - libprotobuf-dev
+    - protobuf-compiler
+
+notifications:
+  email: false
+
+sudo: false
+
+script:
+    - bash travis/script.sh
