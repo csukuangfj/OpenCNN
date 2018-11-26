@@ -6,13 +6,13 @@ protobuf_generate_cpp(
     )
 
 add_library(
-    cnn_proto SHARED
+    cnn_proto STATIC
     ${PROTO_SRCS}
     ${PROTO_HDRS}
     )
 
 target_link_libraries(
     cnn_proto
-    ${MY_PROTOBUF_LIBS}
+    ${Protobuf_LIBRARY}
     )
 
