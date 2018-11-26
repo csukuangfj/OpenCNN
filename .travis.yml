@@ -15,11 +15,6 @@ compiler:
   - gcc
   - clang
 
-matrix:
-  exclude:
-   - os: linux
-     compiler: clang
-
 env:
   - CXX_FLAGS=-std=c++11
 
@@ -44,6 +39,9 @@ notifications:
   email: false
 
 sudo: false
+
+install:
+    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install protobuf gflags glog ; fi
 
 script:
     - bash travis/script.sh
