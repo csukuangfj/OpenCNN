@@ -26,7 +26,7 @@ class Optimizer
         network_->register_data_callback(f);
     }
  private:
-    void update_parameters();
+    void update_parameters(int current_iter);
  private:
     void print_parameters();
 

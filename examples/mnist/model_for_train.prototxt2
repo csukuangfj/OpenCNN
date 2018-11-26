@@ -3,8 +3,9 @@ layer_proto {
     name: "input"
     type: INPUT
     top: "data"
+    top: "label"
     input_proto {
-        n: 1
+        n: 10
         c: 1
         h: 28
         w: 28
@@ -178,8 +179,9 @@ layer_proto {
 }
 
 layer_proto {
-    name: "softmax"
-    type: SOFTMAX
+    name: "softmax_log_loss"
+    type: SOFTMAX_WITH_LOG_LOSS
     bottom: "fc2"
-    top: "prob"
+    bottom: "label"
+    top: "loss"
 }

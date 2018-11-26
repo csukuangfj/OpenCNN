@@ -90,6 +90,57 @@ void Layer<Dtype>::copy_trained_layer(const LayerProto& p)
         param_.push_back(arr);
     }
 }
+template<typename Dtype>
+void Layer<Dtype>::update_parameters(
+        int /*current_iter*/,
+        double current_learning_rate)
+{
+    if (gradient_.empty())
+    {
+        // this layer has no parameters, skip it.
+        // For example, the softmax layer has no parameters
+        return;
+    }
+    if (history_gradient_.empty())
+    {
+        history_gradient_.resize(gradient_.size());
+        for (int i = 0; i < gradient_.size(); i++)
+        {
+            history_gradient_[i].reset(new Array<Dtype>);
+            history_gradient_[i]->init_like(*gradient_[i]);
+        }
+    }
+
+    // TODO(fangjun): move the following options to proto
+    static const Dtype decay = 0.0000;
+    static const Dtype momentum = 0.0;
+    for (int i = 0; i < gradient_.size(); i++)
+    {
+        // apply weight decay
+        ax_plus_by<Dtype>(
+                param_[i]->total_,
+                decay,
+                &param_[i]->d_[0],
+                1,
+                &gradient_[i]->d_[0]);
+
+        // update history
+        ax_plus_by<Dtype>(
+                param_[i]->total_,
+                current_learning_rate,
+                &gradient_[i]->d_[0],
+                momentum,
+                &history_gradient_[i]->d_[0]);
+
+        // update parameters
+        ax_plus_by<Dtype>(
+                param_[i]->total_,
+                -1,
+                &history_gradient_[i]->d_[0],
+                1,
+                &param_[i]->d_[0]);
+    }
+}
 
 }  // namespace cnn
 

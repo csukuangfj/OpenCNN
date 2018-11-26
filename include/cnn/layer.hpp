@@ -80,6 +80,9 @@ class Layer
 
     void copy_trained_layer(const LayerProto& p);
 
+    void update_parameters(int current_iter,
+            double current_learning_rate);
+
     /**
      * At layer construction, we have no idea of the shape of its inputs,
      * so this function MUST be called after constructing the whole network.
@@ -108,6 +111,7 @@ class Layer
  protected:
     std::vector<std::shared_ptr<Array<Dtype>>> param_;
     std::vector<std::shared_ptr<Array<Dtype>>> gradient_;
+    std::vector<std::shared_ptr<Array<Dtype>>> history_gradient_;
 
     LayerProto proto_;
 

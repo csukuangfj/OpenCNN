@@ -1,6 +1,7 @@
 
 #include <glog/logging.h>
 
+#include <cmath>  // std::pow
 #include <fstream>  // NOLINT
 #include <string>
 
@@ -40,14 +41,14 @@ void Optimizer<Dtype>::init(const OptimizerProto& _proto)
 template<typename Dtype>
 void Optimizer<Dtype>::start_training()
 {
-    std::ofstream of("abc.txt");
+    std::ofstream of("loss.txt");
     int max_iter = proto_.max_iteration_num();
     network_->reshape();
     for (int i = 0; i < max_iter; i++)
     {
         network_->fprop();
         network_->bprop();
-        update_parameters();
+        update_parameters(i);
 
         if (i && !(i%proto_.print_interval()))
         {
@@ -70,52 +71,23 @@ void Optimizer<Dtype>::start_training()
 }
 
 template<typename Dtype>
-void Optimizer<Dtype>::update_parameters()
+void Optimizer<Dtype>::update_parameters(int current_iter)
 {
     auto& layers = network_->layers();
     int num_layers = layers.size();
 
     Dtype learning_rate = proto_.learning_rate();
-    // learning_rate /= network_->get_batch_size();
 
-    std::ostringstream ss;
-    // we skip the input layer since it has no parameters
+    // TODO(fangjun): move the following options to proto
+    static const double gamma = 0.0001;
+    double base = 1 + gamma * current_iter;
+    double exp = -0.75;
+    learning_rate *= std::pow(base, exp);
+
     for (int i = 1; i < num_layers; i++)
     {
-        auto param = layers[i]->mutable_param();
-        auto gradient = layers[i]->gradient();
-
-        for (int k = 0; k < param.size(); k++)
-        {
-            ss << "before update weight: \n";
-            for (int m = 0; m < param[k]->total_; m++)
-            {
-                ss << param[k]->d_[m] << " ";
-            }
-            ss << "\n";
-
-            ss << "gradient: \n";
-            for (int m = 0; m < gradient[k]->total_; m++)
-            {
-                ss << -learning_rate*gradient[k]->d_[m] << " ";
-            }
-            ss << "\n";
-
-            ax_plus_by<Dtype>(
-                    param[k]->total_,
-                    -learning_rate,
-                    &gradient[k]->d_[0],
-                    1,
-                    &param[k]->d_[0]);
-            ss << "after update: \n";
-            for (int m = 0; m < param[k]->total_; m++)
-            {
-                ss << param[k]->d_[m] << " ";
-            }
-            ss << "\n";
-        }
+        layers[i]->update_parameters(current_iter, learning_rate);
     }
-    // LOG(WARNING) << ss.str();
 }
 
 template<typename Dtype>

@@ -206,8 +206,10 @@ void do_testing()
 
     std::string filename = "../examples/mnist/model_for_deploy.prototxt";
     std::string trained = "./trained-bin.prototxt";
+    // trained = "./mnist-bin.prototxt-500";
     cnn::Network<double> network(filename);
     network.copy_trained_network(trained, true);
+    network.set_phase(cnn::TEST);
     network.reshape();
 
     int correct = 0;
