@@ -35,7 +35,7 @@ class Network
     void bprop();
 
     void set_phase(Phase phase);
-    void get_phase() const {return phase_;}
+    Phase get_phase() const {return phase_;}
 
     Dtype get_loss() const
     {

@@ -467,7 +467,7 @@ TYPED_TEST(BatchNormalizationLayerTest, bprop_with_jet_gamma)
         for (int i = 0; i < DIM; i++)
         {
             TypeParam expected = s.v_[i];
-            EXPECT_NEAR(layer->gradient()[0]->d_[i].a_ / expected, 1, 1e-5);
+            EXPECT_NEAR(layer->gradient()[0]->d_[i].a_ / expected, 1, 1e-4);
         }
     }
 }

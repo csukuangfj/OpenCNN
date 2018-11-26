@@ -2,7 +2,7 @@
 
 #include <random>
 
-#include "cnn/Array.hpp"
+#include "cnn/array.hpp"
 
 namespace cnn
 {

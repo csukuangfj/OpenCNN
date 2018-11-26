@@ -7,7 +7,7 @@ find_path(GFLAGS_INCLUDE_DIRS
         gflags/gflags.h
         PATHS
         /usr/local/include
-        $ENV{HOME}/software/gflags/inclue
+        $ENV{HOME}/software/gflags/include
         DOC "Path to gflags/gflags.h"
 )
 if (NOT GFLAGS_INCLUDE_DIRS)

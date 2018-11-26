@@ -167,13 +167,6 @@ void Network<Dtype>::save_network(
 template<typename Dtype>
 void Network<Dtype>::reshape()
 {
-    static bool init = false;
-    if (false)
-    {
-        LOG(FATAL) << "reshape() should be called only once!";
-    }
-    init = true;
-
     layers_[0]->reshape({}, {}, get_data_top_mutable(0), {});
     for (int i = 1; i < layers_.size(); i++)
     {
