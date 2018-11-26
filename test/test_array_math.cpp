@@ -69,6 +69,10 @@ TYPED_TEST(ArrayMathTest, scale_arr)
     scale_arr<TypeParam>(0.5, d, &d);
     EXPECT_EQ(d[0], 2);
     EXPECT_EQ(d[1], 3);
+
+    scale_arr<TypeParam>(2, 2, &d[0], &d[0]);
+    EXPECT_EQ(d[0], 4);
+    EXPECT_EQ(d[1], 6);
 }
 
 TYPED_TEST(ArrayMathTest, sum_arr)
@@ -89,6 +93,16 @@ TYPED_TEST(ArrayMathTest, sum_arr2)
     d[1] = 3;
     auto r = sum_arr<TypeParam>(d.total_, &d[0]);
     EXPECT_EQ(r, 1);
+}
+
+TYPED_TEST(ArrayMathTest, sum_squared_arr)
+{
+    Array<TypeParam> d;
+    d.init(1, 2, 1, 1);
+    d[0] = -1;
+    d[1] = 3;
+    auto r = sum_squared_arr<TypeParam>(2, &d[0]);
+    EXPECT_EQ(r, 10);
 }
 
 TYPED_TEST(ArrayMathTest, sub_scalar)

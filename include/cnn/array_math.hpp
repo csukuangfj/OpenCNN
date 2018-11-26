@@ -110,6 +110,15 @@ void scale_arr(Dtype alpha, const Array<Dtype>& src, Array<Dtype> *dst)
     }
 }
 
+template<typename Dtype>
+void scale_arr(int n, Dtype alpha, const Dtype* src, Dtype *dst)
+{
+    for (int i = 0; i < n; i++)
+    {
+        dst[i] = alpha * src[i];
+    }
+}
+
 /**
  * res = src[0] + src[1] + src[2] + ... + src[total-1]
  */
@@ -131,6 +140,17 @@ Dtype sum_arr(int n, const Dtype* src)
     for (int i = 0; i < n; i++)
     {
         res += src[i];
+    }
+    return res;
+}
+
+template<typename Dtype>
+Dtype sum_squared_arr(int n, const Dtype* src)
+{
+    Dtype res = 0;
+    for (int i = 0; i < n; i++)
+    {
+        res += src[i]*src[i];
     }
     return res;
 }
@@ -163,5 +183,4 @@ void sub_scalar(int n, Dtype alpha, const Dtype* src, Dtype* dst)
 
 }  // namespace cnn
 
-#include "../../src/array_math.cpp"
 

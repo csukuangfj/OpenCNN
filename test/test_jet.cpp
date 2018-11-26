@@ -237,8 +237,26 @@ TYPED_TEST(JetTest, jet_exp_log)
         EXPECT_NEAR(g.a_, x.a_, 1e-6);
         EXPECT_NEAR(g.v_[0], x.v_[0], 1e-6);
     }
+}
 
-    LOG(INFO) << log(x);
+TYPED_TEST(JetTest, jet_sqrt)
+{
+    using Type = Jet<TypeParam, 1>;
+    Type x(exp(TypeParam(2)), 0, 10);
+
+    {
+        auto f = sqrt(x);
+        auto g = f * f;
+        EXPECT_NEAR(g.a_, x.a_, 1e-6);
+        EXPECT_NEAR(g.v_[0], x.v_[0], 1e-6);
+    }
+
+    {
+        auto f = x * x;
+        auto g = sqrt(f);
+        EXPECT_NEAR(g.a_, x.a_, 1e-6);
+        EXPECT_NEAR(g.v_[0], x.v_[0], 1e-6);
+    }
 }
 
 }  // namespace cnn

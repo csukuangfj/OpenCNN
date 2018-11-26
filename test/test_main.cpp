@@ -39,6 +39,8 @@ GTEST_API_ int main(int argc, char **argv)
 
     // ::testing::GTEST_FLAG(filter) = "ArrayTest*";
     // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
+    // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*";
+    // ::testing::GTEST_FLAG(filter) = "LayerTest*";
     // ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "DropoutLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
@@ -46,7 +48,7 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "JetTest*";
     // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "L2LossLayer_Test*bprop*";
-    ::testing::GTEST_FLAG(filter) = "LayerTest*";
+    // ::testing::GTEST_FLAG(filter) = "LayerTest*";
     // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "MaxPoolingLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*";

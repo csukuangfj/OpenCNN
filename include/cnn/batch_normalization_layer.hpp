@@ -12,6 +12,36 @@ namespace cnn
  * Both bottom[0] and top[0] have shape (N, C, H, W).
  *
  * Refer to the paper https://arxiv.org/pdf/1502.03167.pdf
+ *
+ * Feature maps, i.e., channels, are normalized over batches.
+ *
+ * @code
+ *      for c = 0:num_channels-1
+ *          total = 0
+ *          for n = 0:num_batches-1
+ *              add all pixels in channel c, batch n
+ *              accumulate the result in total
+ *
+ *          average total
+ *
+ *          for n = 0:num_batches-1
+ *              subtract total from all pixels in channel c, batch n
+ *
+ *          total = 0
+ *          for n = 0:num_batches-1
+ *              add the square of all pixels in channel c, batch n
+ *              accumulate the result in total
+ *
+ *          average total
+ *          stddev = sqrt(total + eps)
+ *          for n = 0:num_batches-1
+ *               divided by stddev of all pixels in channel c, batch n
+ * @endcode
+ *
+ * param[0]: channel scale with shape (1, C, 1, 1)
+ * param[1]: channel bias with shape (1, C, 1, 1)
+ * param[2]: channel mean with shape (1, C, 1, 1)
+ * param[3]: channel stddev with shape (1, C, 1, 1)
  */
 template<typename Dtype>
 class BatchNormalizationLayer : public Layer<Dtype>
@@ -34,6 +64,13 @@ class BatchNormalizationLayer : public Layer<Dtype>
             const std::vector<Array<Dtype>*>& bottom_gradient,
             const std::vector<const Array<Dtype>*>& top,
             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
+ private:
+    /** avoid dividing by 0 */
+    Dtype eps_ = 1e-5;
+
+    /** moving_mean = moving_mean*momentum + mini_batch_mean*(1-momentum) */
+    Dtype momentum_;
 };
 
 }  // namespace cnn

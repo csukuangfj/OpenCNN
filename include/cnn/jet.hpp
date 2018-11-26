@@ -302,6 +302,7 @@ bool operator >= (const Jet<Dtype, N>& f, const Jet<Dtype, N>& g)
 //      std::exp
 //      std::log
 //      std::max
+//      std::sqrt
 //--------------------
 using std::max;
 
@@ -333,9 +334,20 @@ Jet<Dtype, N> log(const Jet<Dtype, N>& f)
 {
     Jet<Dtype, N> res;
 
-    auto s = Dtype(1)/f.a_;
     res.a_ = log(f.a_);
-    res.v_ = s * f.v_;
+    res.v_ = f.v_ / f.a_;
+
+    return res;
+}
+
+using std::sqrt;
+template<typename Dtype, int N>
+Jet<Dtype, N> sqrt(const Jet<Dtype, N>& f)
+{
+    Jet<Dtype, N> res;
+
+    res.a_ = sqrt(f.a_);
+    res.v_ = f.v_ / (Dtype(2) * res.a_);
 
     return res;
 }

@@ -63,6 +63,7 @@ message LayerProto
     optional ConvolutionLayerProto conv_proto   = 9;
     optional MaxPoolingLayerProto max_pooling_proto = 10;
     optional DropoutLayerProto dropout_proto    = 11;
+    optional BatchNormalizationLayerProto batch_normalization_proto = 12;
 }
 
 message InputLayerProto
@@ -95,5 +96,11 @@ message MaxPoolingLayerProto
 message DropoutLayerProto
 {
     optional double keep_prob = 1;  // the probability to retain the output
+}
+
+message BatchNormalizationLayerProto
+{
+    // moving_average = momentum * moving_average + (1 - momentum) * mini_batch_average
+    optional double momentum = 1 [default = 0.99];
 }
 

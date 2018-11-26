@@ -22,6 +22,7 @@ add_executable(gtest
     test_max_pooling_layer.cpp
     test_rng.cpp
     test_drop_out_layer.cpp
+    test_batch_normalization_layer.cpp
     )
 target_link_libraries(
     gtest
