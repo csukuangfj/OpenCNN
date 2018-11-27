@@ -98,6 +98,22 @@ void set_to(Array<Dtype>* arr, Dtype val)
     }
 }
 
+template<typename Dtype>
+void set_to(int n, Dtype* arr, Dtype val)
+{
+    if (!val)
+    {
+        memset(arr, 0, sizeof(Dtype)*n);
+    }
+    else    // NOLINT
+    {
+        for (int i = 0; i < n; i++)
+        {
+            arr[i] = val;
+        }
+    }
+}
+
 /**
  * dst[i] = alpha * src[i]
  */

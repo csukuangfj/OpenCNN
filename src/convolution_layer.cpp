@@ -117,9 +117,13 @@ void ConvolutionLayer<Dtype>::fprop(
     int h = b.h_;
     int w = b.w_;
 
+    int num_pixels = h*w;
+
     for (int n = 0; n < b.n_; n++)
     for (int i = 0; i < num_output_; i++)
     {
+        // add the bias
+        set_to<Dtype>(num_pixels, &t(n, i, 0, 0), this->param_[1]->d_[i]);
         for (int c = 0; c < b.c_; c++)
         {
             one_channel_convolution(
@@ -129,12 +133,6 @@ void ConvolutionLayer<Dtype>::fprop(
                     b.w_,
                     &t(n, i, 0, 0));
         }
-        // add the bias
-        sub_scalar<Dtype>(
-                h*w,
-                -this->param_[1]->d_[i],
-                &t(n, i, 0, 0),
-                &t(n, i, 0, 0));
     }
 }
 

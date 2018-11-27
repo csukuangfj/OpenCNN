@@ -13,6 +13,45 @@ class ArrayMathTest : public ::testing::Test
 using MyTypes = ::testing::Types<float, double>;
 TYPED_TEST_CASE(ArrayMathTest, MyTypes);
 
+TYPED_TEST(ArrayMathTest, set_to)
+{
+    int val = 100;
+    {
+        Array<TypeParam> arr;
+        arr.init(2, 3, 4, 5);
+        set_to<TypeParam>(&arr, val);
+        for (int i = 0; i < arr.total_; i++)
+        {
+            EXPECT_EQ(arr[i], val);
+        }
+
+        val = 0;
+        set_to<TypeParam>(&arr, val);
+        for (int i = 0; i < arr.total_; i++)
+        {
+            EXPECT_EQ(arr[i], val);
+        }
+    }
+
+    {
+        val = 200;
+        Array<TypeParam> arr;
+        arr.init(2, 3, 4, 5);
+        set_to<TypeParam>(arr.total_, &arr[0], val);
+        for (int i = 0; i < arr.total_; i++)
+        {
+            EXPECT_EQ(arr[i], val);
+        }
+
+        val = 0;
+        set_to<TypeParam>(arr.total_, &arr[0], val);
+        for (int i = 0; i < arr.total_; i++)
+        {
+            EXPECT_EQ(arr[i], val);
+        }
+    }
+}
+
 TYPED_TEST(ArrayMathTest, ax_sub_by_squared)
 {
     Array<TypeParam> arr1;
