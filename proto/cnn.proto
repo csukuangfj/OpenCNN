@@ -40,6 +40,7 @@ enum LayerType
     MAX_POOLING     = 8;
     DROP_OUT        = 9;
     BATCH_NORMALIZATION = 10;
+    LEAKY_RELU      = 11;
 }
 
 // same as caffe
@@ -64,6 +65,7 @@ message LayerProto
     optional MaxPoolingLayerProto max_pooling_proto = 10;
     optional DropoutLayerProto dropout_proto    = 11;
     optional BatchNormalizationLayerProto batch_normalization_proto = 12;
+    optional LeakyReLULayerProto leaky_relu_proto = 13;
 }
 
 message InputLayerProto
@@ -104,3 +106,12 @@ message BatchNormalizationLayerProto
     optional double momentum = 1 [default = 0.99];
 }
 
+
+message LeakyReLULayerProto
+{
+    // when input is less than 0, it returns alpha*input
+    // tensorflow uses default value 0.2
+    // keras uses 0.3
+    // pytorch uses 0.01, which is the same as in the paper
+    optional double alpha = 1 [default = 0.01];
+}

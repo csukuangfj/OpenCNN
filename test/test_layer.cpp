@@ -108,5 +108,14 @@ TYPED_TEST(LayerTest, create_batch_normalization)
     EXPECT_NE(res.get(), nullptr);
 }
 
+TYPED_TEST(LayerTest, create_leaky_relu)
+{
+    LayerProto proto;
+    proto.set_type(LEAKY_RELU);
+    proto.mutable_leaky_relu_proto()->set_alpha(0.3);
+    auto res = Layer<TypeParam>::create(proto);
+    EXPECT_NE(res.get(), nullptr);
+}
+
 }  // namespace cnn
 

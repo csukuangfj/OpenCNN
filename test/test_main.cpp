@@ -50,6 +50,7 @@ GTEST_API_ int main(int argc, char **argv)
     // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "L2LossLayer_Test*bprop*";
     // ::testing::GTEST_FLAG(filter) = "LayerTest*";
+    // ::testing::GTEST_FLAG(filter) = "LeakyReLULayerTest*";
     // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "MaxPoolingLayerTest*";
     // ::testing::GTEST_FLAG(filter) = "NetworkTest*";

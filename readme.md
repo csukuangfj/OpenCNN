@@ -38,6 +38,7 @@ with C++11 from scratch.
 - convolutional
 - batch normalization
 - ReLU
+- leaky ReLU
 - max pooling
 - full connected
 - dropout

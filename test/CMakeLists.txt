@@ -23,6 +23,7 @@ add_executable(gtest
     test_rng.cpp
     test_drop_out_layer.cpp
     test_batch_normalization_layer.cpp
+    test_leaky_relu_layer.cpp
     )
 target_link_libraries(
     gtest
