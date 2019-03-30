@@ -1,7 +1,6 @@
 
-|<sub>Mac OS/Linux</sub>|
-|:---:|
-|[![Build Status](https://travis-ci.com/csukuangfj/OpenCNN.svg?branch=master)](https://travis-ci.com/csukuangfj/OpenCNN)|
+[![Build Status](https://travis-ci.com/csukuangfj/OpenCNN.svg?branch=master)](https://travis-ci.com/csukuangfj/OpenCNN) [![HitCount](http://hits.dwyl.io/csukuangfj/OpenCNN.svg)](http://hits.dwyl.io/csukuangfj/OpenCNN)
+
 
 # OpenCNN
 
