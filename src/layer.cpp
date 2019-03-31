@@ -116,6 +116,17 @@ void Layer<Dtype>::update_parameters(
     // TODO(fangjun): move the following options to proto
     static const Dtype decay = 0.0000;
     static const Dtype momentum = 0.0;
+    // TODO(fangjun):
+    // gradient = gradient + decay*param;
+    // history = momentum*history + (1-momentum)*gradient
+    // param = param - learning_rate*history;
+    //
+    // it usually writes
+    // history = momentum*history + gradient
+    // param = param - learning_rate*history
+    //
+    // momentum is typically 0.9 or 0.99
+    // refer to lecture 7 of CS231N at stanford
     for (int i = 0; i < gradient_.size(); i++)
     {
         // apply weight decay
