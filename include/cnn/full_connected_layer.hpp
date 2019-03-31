@@ -4,8 +4,7 @@
 
 #include "cnn/layer.hpp"
 
-namespace cnn
-{
+namespace cnn {
 /**
  * It has one input bottom[0] with shape (N, C, H, W)
  * and one output top[0] with shape (N, M, 1, 1),
@@ -17,31 +16,27 @@ namespace cnn
  * param[0] contains weight parameters for inner product
  * and param[1] contains corresponding biases.
  */
-template<typename Dtype>
-class FullConnectedLayer : public Layer<Dtype>
-{
+template <typename Dtype>
+class FullConnectedLayer : public Layer<Dtype> {
  public:
-    explicit FullConnectedLayer(const LayerProto&);
+  explicit FullConnectedLayer(const LayerProto&);
 
-    void reshape(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<Array<Dtype>*>& top,
-            const std::vector<Array<Dtype>*>& top_gradient) override;
+  void reshape(const std::vector<const Array<Dtype>*>& bottom,
+               const std::vector<Array<Dtype>*>& bottom_gradient,
+               const std::vector<Array<Dtype>*>& top,
+               const std::vector<Array<Dtype>*>& top_gradient) override;
 
-    void fprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& top) override;
+  void fprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& top) override;
 
-    void bprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<const Array<Dtype>*>& top,
-            const std::vector<const Array<Dtype>*>& top_gradient) override;
+  void bprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& bottom_gradient,
+             const std::vector<const Array<Dtype>*>& top,
+             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
  private:
-    int num_output_;
+  int num_output_;
 };
-
 
 }  // namespace cnn
 

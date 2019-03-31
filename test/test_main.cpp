@@ -31,43 +31,42 @@
 
 #include "gtest/gtest.h"
 
-GTEST_API_ int main(int argc, char **argv)
-{
-    google::InitGoogleLogging(argv[0]);
-    FLAGS_alsologtostderr = true;
-    FLAGS_colorlogtostderr = true;
+GTEST_API_ int main(int argc, char** argv) {
+  google::InitGoogleLogging(argv[0]);
+  FLAGS_alsologtostderr = true;
+  FLAGS_colorlogtostderr = true;
 
-    // ::testing::GTEST_FLAG(filter) = "ArrayTest*";
-    // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
-    // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*bprop*";
-    // ::testing::GTEST_FLAG(filter) = "LayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "DropoutLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*jet*";
-    // ::testing::GTEST_FLAG(filter) = "JetTest*";
-    // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "L2LossLayer_Test*bprop*";
-    // ::testing::GTEST_FLAG(filter) = "LayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "LeakyReLULayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "MaxPoolingLayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "NetworkTest*";
-    // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
-    // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
-    // ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
-    // ::testing::GTEST_FLAG(filter) = "ReLULayerTest*";
-    // ::testing::GTEST_FLAG(filter) = "RngTest*";
-    // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*fprop*";
-    // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*jet*";
-    // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
-    //
-    // ::testing::GTEST_FLAG(filter) = "io_test*";
+  // ::testing::GTEST_FLAG(filter) = "ArrayTest*";
+  // ::testing::GTEST_FLAG(filter) = "ArrayMathTest*";
+  // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "BatchNormalizationLayerTest*bprop*";
+  // ::testing::GTEST_FLAG(filter) = "LayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "ConvolutionLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "DropoutLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "FullConnectedLayerTest*jet*";
+  // ::testing::GTEST_FLAG(filter) = "JetTest*";
+  // ::testing::GTEST_FLAG(filter) = "L2LossLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "L2LossLayer_Test*bprop*";
+  // ::testing::GTEST_FLAG(filter) = "LayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "LeakyReLULayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "LogLossLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "MaxPoolingLayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop1*";
+  // ::testing::GTEST_FLAG(filter) = "NetworkTest*fprop2*";
+  // ::testing::GTEST_FLAG(filter) = "OptimizerTest*";
+  // ::testing::GTEST_FLAG(filter) = "ReLULayerTest*";
+  // ::testing::GTEST_FLAG(filter) = "RngTest*";
+  // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*fprop*";
+  // ::testing::GTEST_FLAG(filter) = "SoftmaxLayerTest*jet*";
+  // ::testing::GTEST_FLAG(filter) = "SoftmaxWithLogLossLayerTest*";
+  //
+  // ::testing::GTEST_FLAG(filter) = "io_test*";
 
-    testing::InitGoogleTest(&argc, argv);
+  testing::InitGoogleTest(&argc, argv);
 
-    LOG(INFO) << "Running main() from test_main.cpp";
+  LOG(INFO) << "Running main() from test_main.cpp";
 
-    return RUN_ALL_TESTS();
+  return RUN_ALL_TESTS();
 }

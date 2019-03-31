@@ -4,8 +4,7 @@
 
 #include "cnn/layer.hpp"
 
-namespace cnn
-{
+namespace cnn {
 /**
  * It has one bottom and one top.
  *
@@ -29,33 +28,29 @@ namespace cnn
  * Dropout is short for DROP OUTput.
  * A similar word is DropConnect.
  */
-template<typename Dtype>
-class DropoutLayer : public Layer<Dtype>
-{
+template <typename Dtype>
+class DropoutLayer : public Layer<Dtype> {
  public:
-    explicit DropoutLayer(const LayerProto&);
+  explicit DropoutLayer(const LayerProto&);
 
-    void reshape(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<Array<Dtype>*>& top,
-            const std::vector<Array<Dtype>*>& top_gradient) override;
+  void reshape(const std::vector<const Array<Dtype>*>& bottom,
+               const std::vector<Array<Dtype>*>& bottom_gradient,
+               const std::vector<Array<Dtype>*>& top,
+               const std::vector<Array<Dtype>*>& top_gradient) override;
 
-    void fprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& top) override;
+  void fprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& top) override;
 
-    void bprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<const Array<Dtype>*>& top,
-            const std::vector<const Array<Dtype>*>& top_gradient) override;
+  void bprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& bottom_gradient,
+             const std::vector<const Array<Dtype>*>& top,
+             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
  private:
-    Dtype keep_prob_;
-    Array<bool> mask_;
+  Dtype keep_prob_;
+  Array<bool> mask_;
 };
 
 }  // namespace cnn
 
 #include "../../src/drop_out_layer.cpp"
-

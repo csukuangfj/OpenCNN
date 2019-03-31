@@ -4,8 +4,7 @@
 
 #include "cnn/array.hpp"
 
-namespace cnn
-{
+namespace cnn {
 
 /**
  * Set the seed for the random number generator.
@@ -50,31 +49,25 @@ double gaussian(double mean, double stddev);
  *
  * @note variance is equal to the square of the standard deviation
  */
-template<typename Dtype>
-void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev)
-{
-    for (int i = 0; i < arr->total_; i++)
-    {
-        arr->d_[i] = static_cast<Dtype>(gaussian(mean, stddev));
-    }
+template <typename Dtype>
+void gaussian(Array<Dtype>* arr, Dtype mean, Dtype stddev) {
+  for (int i = 0; i < arr->total_; i++) {
+    arr->d_[i] = static_cast<Dtype>(gaussian(mean, stddev));
+  }
 }
 
-template<typename Dtype>
-void uniform(Array<Dtype>* arr, int low, int high)
-{
-    for (int i = 0; i < arr->total_; i++)
-    {
-        arr->d_[i] = static_cast<Dtype>(uniform(low, high));
-    }
+template <typename Dtype>
+void uniform(Array<Dtype>* arr, int low, int high) {
+  for (int i = 0; i < arr->total_; i++) {
+    arr->d_[i] = static_cast<Dtype>(uniform(low, high));
+  }
 }
 
-template<typename Dtype>
-void bernoulli(Array<Dtype>* arr, double p)
-{
-    for (int i = 0; i < arr->total_; i++)
-    {
-        arr->d_[i] = static_cast<Dtype>(bernoulli(p));
-    }
+template <typename Dtype>
+void bernoulli(Array<Dtype>* arr, double p) {
+  for (int i = 0; i < arr->total_; i++) {
+    arr->d_[i] = static_cast<Dtype>(bernoulli(p));
+  }
 }
 
 }  // namespace cnn

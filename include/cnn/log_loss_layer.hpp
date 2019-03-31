@@ -4,8 +4,7 @@
 
 #include "cnn/layer.hpp"
 
-namespace cnn
-{
+namespace cnn {
 /**
  * For classification only!
  *
@@ -29,29 +28,26 @@ namespace cnn
  * values of every element in bottom[1] have to be an integer
  * in the range [0, C-1].
  */
-template<typename Dtype>
-class LogLossLayer : public Layer<Dtype>
-{
+template <typename Dtype>
+class LogLossLayer : public Layer<Dtype> {
  public:
-    explicit LogLossLayer(const LayerProto&);
+  explicit LogLossLayer(const LayerProto&);
 
-    void reshape(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<Array<Dtype>*>& top,
-            const std::vector<Array<Dtype>*>& top_gradient) override;
+  void reshape(const std::vector<const Array<Dtype>*>& bottom,
+               const std::vector<Array<Dtype>*>& bottom_gradient,
+               const std::vector<Array<Dtype>*>& top,
+               const std::vector<Array<Dtype>*>& top_gradient) override;
 
-    void fprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& top) override;
+  void fprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& top) override;
 
-    void bprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<const Array<Dtype>*>& top,
-            const std::vector<const Array<Dtype>*>& top_gradient) override;
+  void bprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& bottom_gradient,
+             const std::vector<const Array<Dtype>*>& top,
+             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
  private:
-    Dtype loss_;
+  Dtype loss_;
 };
 
 }  // namespace cnn

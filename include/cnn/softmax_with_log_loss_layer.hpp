@@ -5,8 +5,7 @@
 #include "cnn/layer.hpp"
 #include "cnn/softmax_layer.hpp"
 
-namespace cnn
-{
+namespace cnn {
 /**
  * Softmax + log loss.
  *
@@ -39,36 +38,32 @@ namespace cnn
  * values of every element in bottom[1] have to be an integer
  * in the range [0, C-1].
  */
-template<typename Dtype>
-class SoftmaxWithLogLossLayer : public Layer<Dtype>
-{
+template <typename Dtype>
+class SoftmaxWithLogLossLayer : public Layer<Dtype> {
  public:
-    explicit SoftmaxWithLogLossLayer(const LayerProto&);
+  explicit SoftmaxWithLogLossLayer(const LayerProto&);
 
-    void reshape(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<Array<Dtype>*>& top,
-            const std::vector<Array<Dtype>*>& top_gradient) override;
+  void reshape(const std::vector<const Array<Dtype>*>& bottom,
+               const std::vector<Array<Dtype>*>& bottom_gradient,
+               const std::vector<Array<Dtype>*>& top,
+               const std::vector<Array<Dtype>*>& top_gradient) override;
 
-    void fprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& top) override;
+  void fprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& top) override;
 
-    void bprop(
-            const std::vector<const Array<Dtype>*>& bottom,
-            const std::vector<Array<Dtype>*>& bottom_gradient,
-            const std::vector<const Array<Dtype>*>& top,
-            const std::vector<const Array<Dtype>*>& top_gradient) override;
+  void bprop(const std::vector<const Array<Dtype>*>& bottom,
+             const std::vector<Array<Dtype>*>& bottom_gradient,
+             const std::vector<const Array<Dtype>*>& top,
+             const std::vector<const Array<Dtype>*>& top_gradient) override;
+
  private:
-    Dtype loss_;
-    std::shared_ptr<Layer<Dtype>> softmax_layer_;
-    Array<Dtype> softmax_top_;
-    Array<Dtype> softmax_top_gradient_;
-    Array<Dtype> softmax_bottom_gradient_;
+  Dtype loss_;
+  std::shared_ptr<Layer<Dtype>> softmax_layer_;
+  Array<Dtype> softmax_top_;
+  Array<Dtype> softmax_top_gradient_;
+  Array<Dtype> softmax_bottom_gradient_;
 };
 
 }  // namespace cnn
 
 #include "../../src/softmax_with_log_loss_layer.cpp"
-

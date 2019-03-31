@@ -8,32 +8,31 @@
 
 #include "cnn/network.hpp"
 
-namespace cnn
-{
+namespace cnn {
 
-template<typename Dtype>
-class Optimizer
-{
+template <typename Dtype>
+class Optimizer {
  public:
-    explicit Optimizer(const OptimizerProto& _proto);
-    explicit Optimizer(const std::string& filename);
-    void init(const OptimizerProto& _proto);
+  explicit Optimizer(const OptimizerProto& _proto);
+  explicit Optimizer(const std::string& filename);
+  void init(const OptimizerProto& _proto);
 
-    void start_training();
+  void start_training();
 
-    void register_data_callback(void (*f)(const std::vector<Array<Dtype>*> &))
-    {
-        network_->register_data_callback(f);
-    }
- private:
-    void update_parameters(int current_iter);
- private:
-    void print_parameters();
+  void register_data_callback(void (*f)(const std::vector<Array<Dtype>*>&)) {
+    network_->register_data_callback(f);
+  }
 
  private:
-    OptimizerProto proto_;
+  void update_parameters(int current_iter);
 
-    std::shared_ptr<Network<Dtype>> network_;
+ private:
+  void print_parameters();
+
+ private:
+  OptimizerProto proto_;
+
+  std::shared_ptr<Network<Dtype>> network_;
 };
 
 }  // namespace cnn
