@@ -9,6 +9,6 @@ cd $CNN_ROOT_DIR
 
 ./travis/install-bazel.sh
 
-bazel test --config=cpplint //cnn/... -s
+# bazel test --config=cpplint //cnn/... -s
 
-bazel test //cnn/autodiff:test_jet -s
+bazel test //cnn/... -s

@@ -1,0 +1,45 @@
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
+
+package(default_visibility = ["//visibility:public"])
+
+load("//tools/lint:cpplint.bzl", "cpplint")
+
+cc_library(
+    name = "array",
+    srcs = ["array.cc"],
+    hdrs = ["array.h"],
+    deps = [
+        "//cnn/autodiff:jet",
+        "//cnn/proto:cnn_cc_proto",
+        "@com_google_glog//:glog",
+    ],
+)
+
+cc_library(
+    name = "array_math",
+    hdrs = ["array_math.h"],
+    deps = [
+        ":array",
+    ],
+)
+
+cc_test(
+    name = "test_array",
+    srcs = ["test_array.cc"],
+    deps = [
+        ":array",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "test_array_math",
+    srcs = ["test_array_math.cc"],
+    deps = [
+        ":array_math",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+# cpplint()
