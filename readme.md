@@ -1,6 +1,11 @@
 
-[![Build Status](https://travis-ci.com/csukuangfj/OpenCNN.svg?branch=master)](https://travis-ci.com/csukuangfj/OpenCNN) [![HitCount](http://hits.dwyl.io/csukuangfj/OpenCNN.svg)](http://hits.dwyl.io/csukuangfj/OpenCNN)
+[![Build Status](https://travis-ci.com/csukuangfj/OpenCNN.svg?branch=dev)](https://travis-ci.com/csukuangfj/OpenCNN)
 
+
+*I am trying to port to [Bazel][10] and adding more documentation. It may break some
+of the existing functionalities; but it should be stable in three weeks*.
+
+[Documentation][9]
 
 # OpenCNN
 
@@ -130,8 +135,10 @@ More tutorials will be provided later.
 ## License
 
 
+[10]: https://bazel.build/
+[9]: https://csukuangfj.github.io/doc/OpenCNN/
 [8]: https://github.com/csukuangfj/OpenCNN-Models/tree/master/mnist
-[7]: /examples/mnist
+[7]: https://github.com/csukuangfj/OpenCNN/tree/master/examples/mnist
 [6]: /examples/mnist/loss-accuracy-iter.png
 [5]: https://en.wikipedia.org/wiki/Automatic_differentiation
 [4]: https://github.com/abseil/googletest

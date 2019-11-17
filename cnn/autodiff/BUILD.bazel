@@ -1,0 +1,24 @@
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
+
+package(
+    default_visibility = ["//visibility:public"],
+)
+
+load("//tools/lint:cpplint.bzl", "cpplint")
+
+cc_library(
+    name = "jet",
+    hdrs = ["jet.h"],
+)
+
+cc_test(
+    name = "test_jet",
+    srcs = ["test_jet.cc"],
+    deps = [
+        ":jet",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cpplint()

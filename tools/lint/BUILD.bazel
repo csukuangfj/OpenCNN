@@ -1,0 +1,6 @@
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
+
+package(
+    default_visibility = ["//visibility:public"],
+)

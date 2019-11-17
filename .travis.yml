@@ -1,8 +1,8 @@
 # Travis CI for OpenCNN
 #
-# Author: Fangjun Kuang, cuskuangfj <at> gmail <dot> com
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
 # Date: November 26, 2018
-#
 #
 
 os:
@@ -25,24 +25,12 @@ addons:
     - ubuntu-toolchain-r-test
     - llvm-toolchain-precise-3.7
     packages:
-    - g++-4.9
-    - clang-3.7
-    - build-essential
-    - cmake
     - git
-    - libgflags-dev
-    - libgoogle-glog-dev
-    - libprotobuf-dev
-    - protobuf-compiler
 
 notifications:
   email: false
 
 sudo: false
 
-install:
-    - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew install protobuf gflags glog ; fi
-
 script:
     - bash travis/script.sh
-    - bash travis/mnist-test.sh

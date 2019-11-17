@@ -1,7 +1,14 @@
 #!/bin/bash
 
-mkdir build
-cd build
-cmake ..
-make -j4
-./gtest
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
+
+CNN_ROOT_DIR=$(cd $(dirname ${BASH_SOURCE[0]})/.. && pwd)
+
+cd $CNN_ROOT_DIR
+
+./travis/install-bazel.sh
+
+bazel test --config=cpplint //cnn/... -s
+
+bazel test //cnn/autodiff:test_jet -s
