@@ -3,7 +3,7 @@
 # Copyright 2019. All Rights Reserved.
 # Author: fangjun.kuang@gmail.com (Fangjun Kuang)
 
-BAZEL_VERSION=0.25.0
+BAZEL_VERSION=0.26.0
 
 if which bazel >/dev/null; then
   # get bazel version

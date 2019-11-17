@@ -4,6 +4,15 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 def cnn_repositories():
+    rules_cc_commit_id = "c2b692b4e4ee5260e741eb479d3ecb686c89a48d"
+    rules_cc_sha256 = "f1abfedd988c56a76cf3f85dc6f0e1dee9f422785bcd1805605fef189171347e"
+    http_archive(
+        name = "rules_cc",
+        sha256 = rules_cc_sha256,
+        strip_prefix = "rules_cc-" + rules_cc_commit_id,
+        urls = ["https://github.com/bazelbuild/rules_cc/archive/{}.tar.gz".format(rules_cc_commit_id)],
+    )
+
     http_archive(
         name = "com_google_googletest",
         sha256 = "9dc9157a9a1551ec7a7e43daea9a694a0bb5fb8bec81235d8a1e6ef64c716dcb",
