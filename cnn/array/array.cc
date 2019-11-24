@@ -17,10 +17,9 @@
 #include <string>
 #include <vector>
 
-#include <glog/logging.h>
+#include "glog/logging.h"
 
 #include "cnn/array/array.h"
-#include "cnn/autodiff/jet.h"
 
 namespace cnn {
 
@@ -213,5 +212,6 @@ void Array<Dtype>::to_proto(ArrayProto* proto) const {
 
 template class Array<float>;
 template class Array<double>;
+template class Array<bool>;
 
 }  // namespace cnn

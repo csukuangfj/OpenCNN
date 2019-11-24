@@ -30,62 +30,82 @@
 #include <cmath>
 #include <string>
 
+#include "glog/logging.h"
+
 namespace cnn {
 
-template <typename Dtype, int N>
-class ArrayWithOp : public std::array<Dtype, N> {};
+template <typename Dtype>
+class ArrayWithOp {
+ public:
+  explicit ArrayWithOp(int n) : v_(n) {}
+  int n() const { return static_cast<int>(v_.size()); }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator+(const ArrayWithOp<Dtype, N>& a,
-                                const ArrayWithOp<Dtype, N>& b) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+  Dtype operator[](int i) const { return v_[i]; }
+  Dtype& operator[](int i) { return v_[i]; }
+
+  bool has_same_shape(const ArrayWithOp& other) const {
+    return v_.size() == other.v_.size();
+  }
+  Dtype at(int i) const { return v_.at(i); }
+  Dtype& at(int i) { return v_.at(i); }
+
+ private:
+  std::vector<Dtype> v_;
+};
+
+template <typename Dtype>
+ArrayWithOp<Dtype> operator+(const ArrayWithOp<Dtype>& a,
+                             const ArrayWithOp<Dtype>& b) {
+  CHECK(a.has_same_shape(b));
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = a[i] + b[i];
   }
   return c;
 }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator-(const ArrayWithOp<Dtype, N>& a,
-                                const ArrayWithOp<Dtype, N>& b) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+template <typename Dtype>
+ArrayWithOp<Dtype> operator-(const ArrayWithOp<Dtype>& a,
+                             const ArrayWithOp<Dtype>& b) {
+  CHECK(a.has_same_shape(b));
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = a[i] - b[i];
   }
   return c;
 }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator-(const ArrayWithOp<Dtype, N>& a) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+template <typename Dtype>
+ArrayWithOp<Dtype> operator-(const ArrayWithOp<Dtype>& a) {
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = -a[i];
   }
   return c;
 }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator*(const ArrayWithOp<Dtype, N>& a, double s) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+template <typename Dtype>
+ArrayWithOp<Dtype> operator*(const ArrayWithOp<Dtype>& a, double s) {
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = a[i] * s;
   }
   return c;
 }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator*(double s, const ArrayWithOp<Dtype, N>& a) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+template <typename Dtype>
+ArrayWithOp<Dtype> operator*(double s, const ArrayWithOp<Dtype>& a) {
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = a[i] * s;
   }
   return c;
 }
 
-template <typename Dtype, int N>
-ArrayWithOp<Dtype, N> operator/(const ArrayWithOp<Dtype, N>& a, double s) {
-  ArrayWithOp<Dtype, N> c;
-  for (int i = 0; i < N; ++i) {
+template <typename Dtype>
+ArrayWithOp<Dtype> operator/(const ArrayWithOp<Dtype>& a, double s) {
+  ArrayWithOp<Dtype> c(a.n());
+  for (int i = 0; i < a.n(); ++i) {
     c[i] = a[i] / s;
   }
   return c;
@@ -98,14 +118,20 @@ ArrayWithOp<Dtype, N> operator/(const ArrayWithOp<Dtype, N>& a, double s) {
  *
  * We use the same name `Jet` as in ceres-solver.
  */
-template <typename Dtype, int N>
+struct Dim {
+  explicit Dim(int num) : n(num) {}
+  int n;
+};
+
+template <typename Dtype>
 class Jet {
  public:
+  using type = Dtype;
   /** @brief The default constructor.
    *
-   * Both the value and the graident are set to 0.
+   * Both the value and the gradient are set to 0.
    */
-  Jet() : val_() { grad_.fill(0); }
+  explicit Jet(Dim dim) : val_(), grad_(dim.n) {}
 
   /** @brief Conversion from a scalar
    *
@@ -115,12 +141,12 @@ class Jet {
    *
    * @param val The value of the variable.
    *
-   * @note we omit the **explicit** specifier
-   * since it is expected.
    */
-  Jet(const Dtype& val)  // NOLINT
-      : val_(val) {
-    grad_.fill(0);
+  Jet(Dim dim, const Dtype& val) : val_(val), grad_(dim.n) {}
+
+  Jet& operator=(const Dtype& val) {
+    val_ = val;
+    grad_.assign(grad_.size(), 0);
   }
 
   /** @brief Construct with a value and its derivative.
@@ -129,8 +155,8 @@ class Jet {
    * @param i the position to set the derivative
    * @param derivative the derivative of the variable
    */
-  Jet(const Dtype& val, int i, Dtype derivative = 1) : val_(val) {
-    grad_.fill(0);
+  Jet(Dim dim, const Dtype& val, int i, Dtype derivative = 1)
+      : val_(val), grad_(dim.n) {
     grad_.at(i) = derivative;
   }
 
@@ -142,7 +168,7 @@ class Jet {
    */
   void set(const Dtype& val, int i, Dtype derivative = 1) {
     val_ = val;
-    grad_.fill(0);
+    grad_.assign(grad_.size(), 0);
     grad_.at(i) = derivative;
   }
 
@@ -153,7 +179,7 @@ class Jet {
     std::ostringstream ss;
     ss << "[" << val_ << ", (";
     std::string sep;
-    for (int i = 0; i < N; ++i) {
+    for (int i = 0; i < grad_.n(); ++i) {
       ss << sep << grad_[i];
       sep = ", ";
     }
@@ -178,12 +204,18 @@ class Jet {
    */
   operator Dtype() const { return val_; }
 
-  Dtype val_;                   //!< value
-  ArrayWithOp<Dtype, N> grad_;  //!< gradient
+  bool has_same_shape(const Jet& other) const {
+    return grad_.has_same_shape(other.grad_);
+  }
+
+  Dim dim() const { return Dim(grad_.n()); }
+
+  Dtype val_;                //!< value
+  ArrayWithOp<Dtype> grad_;  //!< gradient
 };
 
-template <typename Dtype, int N>
-std::ostream& operator<<(std::ostream& os, const Jet<Dtype, N>& f) {
+template <typename Dtype>
+std::ostream& operator<<(std::ostream& os, const Jet<Dtype>& f) {
   os << f.to_string();
   return os;
 }
@@ -193,9 +225,9 @@ std::ostream& operator<<(std::ostream& os, const Jet<Dtype, N>& f) {
  * @param f the input jet
  * @return a jet with (-value, -gradient) of the input jet
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator-(const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator-(const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
   res.val_ = -f.val_;
   res.grad_ = -f.grad_;
   return res;
@@ -216,9 +248,9 @@ Jet<Dtype, N> operator-(const Jet<Dtype, N>& f) {
  *
  * @return a jet with (s + value, gradient)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator+(const Jet<Dtype, N>& f, Dtype s) {
-  Jet<Dtype, N> res(f);
+template <typename Dtype>
+Jet<Dtype> operator+(const Jet<Dtype>& f, Dtype s) {
+  Jet<Dtype> res(f);
   res.val_ += s;
   return res;
 }
@@ -233,9 +265,9 @@ Jet<Dtype, N> operator+(const Jet<Dtype, N>& f, Dtype s) {
  *
  * @return a jet with (s + value, gradient)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator+(Dtype s, const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res(f);
+template <typename Dtype>
+Jet<Dtype> operator+(Dtype s, const Jet<Dtype>& f) {
+  Jet<Dtype> res(f);
   res.val_ += s;
   return res;
 }
@@ -250,9 +282,9 @@ Jet<Dtype, N> operator+(Dtype s, const Jet<Dtype, N>& f) {
  * @return a jet with (val - s, gradient)
  *
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator-(const Jet<Dtype, N>& f, Dtype s) {
-  Jet<Dtype, N> res(f);
+template <typename Dtype>
+Jet<Dtype> operator-(const Jet<Dtype>& f, Dtype s) {
+  Jet<Dtype> res(f);
   res.val_ -= s;
   return res;
 }
@@ -266,9 +298,9 @@ Jet<Dtype, N> operator-(const Jet<Dtype, N>& f, Dtype s) {
  *
  * @return a jet with (s - value, -gradient)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator-(Dtype s, const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator-(Dtype s, const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
   res.val_ = s - f.val_;
   res.grad_ = -f.grad_;
   return res;
@@ -283,9 +315,9 @@ Jet<Dtype, N> operator-(Dtype s, const Jet<Dtype, N>& f) {
  *
  * @return a jet with (s * value, s * gradient)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator*(const Jet<Dtype, N>& f, Dtype s) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator*(const Jet<Dtype>& f, Dtype s) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ * s;
   res.grad_ = f.grad_ * s;
   return res;
@@ -301,9 +333,9 @@ Jet<Dtype, N> operator*(const Jet<Dtype, N>& f, Dtype s) {
  * @return a jet with (s * value, s * gradient)
  *
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator*(Dtype s, const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator*(Dtype s, const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ * s;
   res.grad_ = f.grad_ * s;
   return res;
@@ -318,9 +350,9 @@ Jet<Dtype, N> operator*(Dtype s, const Jet<Dtype, N>& f) {
  *
  * @return a jet with (value/s, gradient/s)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator/(const Jet<Dtype, N>& f, Dtype s) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator/(const Jet<Dtype>& f, Dtype s) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ / s;
   res.grad_ = f.grad_ / s;
   return res;
@@ -346,9 +378,9 @@ Jet<Dtype, N> operator/(const Jet<Dtype, N>& f, Dtype s) {
  * @return a jet with \f$(\frac{s}{\mathrm{value}},
  * \frac{s}{\mathrm{value}^2}\cdot \mathrm{gradient})\f$
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator/(Dtype s, const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator/(Dtype s, const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
   res.val_ = s / f.val_;
   res.grad_ = -s * f.grad_ / (f.val_ * f.val_);
   return res;
@@ -361,11 +393,11 @@ Jet<Dtype, N> operator/(Dtype s, const Jet<Dtype, N>& f) {
  *
  * @return (f.val + g.val, f.grad + g.grad)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator+(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator+(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ + g.val_;
-  res.grad_ = f.grad_ + g.grad_;
+  res.grad_ = f.grad_ + g.grad_;  // it will check the shape internally
   return res;
 }
 
@@ -376,9 +408,9 @@ Jet<Dtype, N> operator+(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return (f.val - g.val, f.grad - g.grad)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator-(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator-(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ - g.val_;
   res.grad_ = f.grad_ - g.grad_;
   return res;
@@ -406,9 +438,9 @@ Jet<Dtype, N> operator-(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  * @return a jet \f$(\mathrm{f.val} \times\mathrm{g.val},
  * \mathrm{f.val}\times\mathrm{g.grad} + \mathrm{g.val}\times\mathrm{f.grad})\f$
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator*(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator*(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ * g.val_;
   res.grad_ = f.val_ * g.grad_ + g.val_ * f.grad_;
   return res;
@@ -438,9 +470,9 @@ Jet<Dtype, N> operator*(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  * \frac{\mathrm{f.grad}}{\mathrm{g.val}} -
  * \frac{\mathrm{f.val}\times\mathrm{g.grad}}{\mathrm{g.val}^2})\f$
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> operator/(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> operator/(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  Jet<Dtype> res(f.dim());
   res.val_ = f.val_ / g.val_;
   res.grad_ = f.grad_ / g.val_ - (f.val_ * g.grad_) / (g.val_ * g.val_);
   return res;
@@ -456,8 +488,9 @@ Jet<Dtype, N> operator/(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if the values of the two jet are equal; false otherwise
  */
-template <typename Dtype, int N>
-bool operator==(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator==(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  CHECK(f.has_same_shape(g));
   return f.val_ == g.val_;
 }
 
@@ -471,8 +504,9 @@ bool operator==(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if the values of the two jet are **NOT** equal; false otherwise
  */
-template <typename Dtype, int N>
-bool operator!=(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator!=(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  CHECK(f.has_same_shape(g));
   return f.val_ != g.val_;
 }
 
@@ -486,8 +520,9 @@ bool operator!=(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if f.val < g.val; false otherwise
  */
-template <typename Dtype, int N>
-bool operator<(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator<(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  CHECK(f.has_same_shape(g));
   return f.val_ < g.val_;
 }
 
@@ -501,8 +536,9 @@ bool operator<(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if f.val <= g.val; false otherwise
  */
-template <typename Dtype, int N>
-bool operator<=(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator<=(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  CHECK(f.has_same_shape(g));
   return f.val_ <= g.val_;
 }
 
@@ -516,8 +552,8 @@ bool operator<=(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if f.val > g.val; false otherwise
  */
-template <typename Dtype, int N>
-bool operator>(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator>(const Jet<Dtype>& f, const Jet<Dtype>& g) {
   return f.val_ > g.val_;
 }
 
@@ -531,8 +567,9 @@ bool operator>(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
  *
  * @return true if f.val >= g.val; false otherwise
  */
-template <typename Dtype, int N>
-bool operator>=(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+bool operator>=(const Jet<Dtype>& f, const Jet<Dtype>& g) {
+  CHECK(f.has_same_shape(g));
   return f.val_ >= g.val_;
 }
 
@@ -554,8 +591,8 @@ using std::max;
  *
  * @return g if f.val < g.val; f otherwise
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> max(const Jet<Dtype, N>& f, const Jet<Dtype, N>& g) {
+template <typename Dtype>
+Jet<Dtype> max(const Jet<Dtype>& f, const Jet<Dtype>& g) {
   return (f < g) ? g : f;
 }
 
@@ -572,9 +609,9 @@ using std::exp;
  *
  * @return a jet with (exp(value), exp(value)*grad)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> exp(const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> exp(const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
 
   auto s = exp(f.val_);
   res.val_ = s;
@@ -596,9 +633,9 @@ using std::log;
  * @return a jet (log(value),
  * \f$\frac{1}{\mathrm{value}}\f$*grad)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> log(const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> log(const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
 
   res.val_ = log(f.val_);
   res.grad_ = f.grad_ / f.val_;
@@ -619,9 +656,9 @@ using std::sqrt;
  * @return a jet \f$(\sqrt{\mathrm{value}},
  * \frac{1}{\sqrt{\mathrm{value}}}\f$*grad)
  */
-template <typename Dtype, int N>
-Jet<Dtype, N> sqrt(const Jet<Dtype, N>& f) {
-  Jet<Dtype, N> res;
+template <typename Dtype>
+Jet<Dtype> sqrt(const Jet<Dtype>& f) {
+  Jet<Dtype> res(f.dim());
 
   res.val_ = sqrt(f.val_);
   res.grad_ = f.grad_ / (Dtype(2) * res.val_);

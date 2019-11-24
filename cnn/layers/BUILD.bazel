@@ -1,0 +1,31 @@
+# Copyright 2019. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
+
+package(default_visibility = ["//visibility:public"])
+
+cc_library(
+    name = "layer",
+    srcs = [
+        "full_connected_layer.cc",
+        "layer.cc",
+    ],
+    hdrs = [
+        "full_connected_layer.h",
+        "layer.h",
+    ],
+    deps = [
+        "//cnn/array",
+        "//cnn/array:array_math",
+        "//cnn/utils:rng",
+        "@com_google_glog//:glog",
+    ],
+)
+
+cc_test(
+    name = "test_layer",
+    srcs = ["test_layer.cc"],
+    deps = [
+        ":layer",
+        "@com_google_googletest//:gtest_main",
+    ],
+)

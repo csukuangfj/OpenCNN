@@ -3,24 +3,21 @@
 
 package(default_visibility = ["//visibility:public"])
 
-load("//tools/lint:cpplint.bzl", "cpplint")
-
 cc_library(
-    name = "jet",
-    hdrs = ["jet.h"],
+    name = "rng",
+    srcs = ["rng.cc"],
+    hdrs = ["rng.h"],
     deps = [
+        "//cnn/array",
         "@com_google_glog//:glog",
     ],
 )
 
 cc_test(
-    name = "test_jet",
-    srcs = ["test_jet.cc"],
+    name = "test_rng",
+    srcs = ["test_rng.cc"],
     deps = [
-        ":jet",
+        ":rng",
         "@com_google_googletest//:gtest_main",
     ],
 )
-
-# TODO(fangjun): it fails for bazel version > 0.26.0
-# cpplint()

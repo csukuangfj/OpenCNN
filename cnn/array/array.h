@@ -74,9 +74,6 @@ class Array {
   void to_proto(ArrayProto* proto) const;
 };
 
-extern template class Array<float>;
-extern template class Array<double>;
-
 }  // namespace cnn
 
 #endif  // CNN_ARRAY_ARRAY_H_
