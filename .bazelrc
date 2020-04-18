@@ -1,8 +1,0 @@
-
-# modified from https://github.com/ApolloAuto/apollo/blob/master/tools/bazel.rc#L21
-# To enable the lint test, the BUILD *must* load the cpplint.bzl by having
-# 'load("//tools/lint:cpplint.bzl", "cpplint")' at the beginning and 'cpplint()'
-# at the end.
-test:cpplint --test_tag_filters=cpplint
-test:cpplint --build_tests_only
-test:cpplint --test_output=all
