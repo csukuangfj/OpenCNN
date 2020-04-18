@@ -1,4 +1,0 @@
-
-add_subdirectory(linear_regression)
-add_subdirectory(logistic_regression)
-add_subdirectory(mnist)
