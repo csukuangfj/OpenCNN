@@ -13,6 +13,8 @@ function(download_googltest)
   set(googletest_libgtest_main "${googletest_INSTALL_DIR}/lib/libgtest_main.a")
   set(googletest_INCLUDE_DIR "${googletest_INSTALL_DIR}/include")
 
+  file(MAKE_DIRECTORY ${googletest_INCLUDE_DIR})
+
   ExternalProject_Add(
     googletest
     URL               ${googletest_URL}
@@ -33,6 +35,9 @@ function(download_googltest)
   add_library(gtest_main STATIC IMPORTED GLOBAL)
   set_property(TARGET gtest_main PROPERTY IMPORTED_LOCATION ${googletest_libgtest_main})
   target_include_directories(gtest_main INTERFACE ${googletest_INCLUDE_DIR})
+
+  add_dependencies(gtest googletest)
+  add_dependencies(gtest_main googletest)
 endfunction()
 
 download_googltest()
