@@ -1,17 +1,45 @@
-name: C/C++ CI
+# refer to https://github.com/actions/starter-workflows/pull/47/files
+
+name: CMake
 
 on:
-    push:
-      branches: [ local ]
-    pull_request:
-      branches: [ local ]
+  push:
+    branches: [ local ]
+  pull_request:
+    branches: [ local ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
 
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macOS-latest]
 
     steps:
-    - uses: actions/checkout@v2
-    - name: run-cmake
-      uses: lukka/run-cmake@v2.0
+      # refer to https://github.com/actions/checkout
+      - uses: actions/checkout@v2
+
+      - name: Create Build Directory
+        run: cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: Configure CMake
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+      - name: Build
+        shell: bash
+        working-directory: ${{runner.workspace}}/build
+        # this will build all targets.
+        # use option "--target <target>" to build a single target
+        run: cmake --build . --config $BUILD_TYPE
+
+      - name: Test
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: ctest --build-config $BUILD_TYPE
