@@ -1,6 +1,8 @@
 
 add_library(autodiff INTERFACE)
 target_include_directories(autodiff INTERFACE ${CMAKE_SOURCE_DIR})
+
+# this links to -std=gnu++11
 target_compile_features(autodiff INTERFACE cxx_std_11)
 
 add_executable(memory_pool_test memory_pool_test.cc)
