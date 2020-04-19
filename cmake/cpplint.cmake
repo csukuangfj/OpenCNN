@@ -11,16 +11,16 @@ function(download_cpplint)
 
   ExternalProject_Add(
     cpplint
-    DOWNLOAD_COMMAND  bash -c "wget ${cpplint_URL}"
-    TIMEOUT           10
-    PREFIX            ${cpplint_DIR}
-    # CONFIGURE_COMMAND "/bin/chmod +x ${cpplint_DIR}/src/cpplint.py"
-    CONFIGURE_COMMAND bash -c "chmod +x ${cpplint_DIR}/src/cpplint.py"
-    BUILD_COMMAND     ""
-    INSTALL_COMMAND   ""
-    TEST_COMMAND      ""
-    LOG_DOWNLOAD      ON
-    LOG_CONFIGURE     ON
+    URL                 ${cpplint_URL}
+    DOWNLOAD_NO_EXTRACT NO
+    TIMEOUT             10
+    PREFIX              ${cpplint_DIR}
+    CONFIGURE_COMMAND   ""
+    BUILD_COMMAND       ""
+    INSTALL_COMMAND     ""
+    TEST_COMMAND        ""
+    LOG_DOWNLOAD        ON
+    LOG_CONFIGURE       ON
   )
 
   ExternalProject_Get_Property(cpplint SOURCE_DIR)
