@@ -1,52 +1,27 @@
+# Copyright 2018-2020. All Rights Reserved.
+# Author: csukuangfj@gmail.com (Fangjun Kuang)
 
-cmake_minimum_required(VERSION 3.0)
-project(cnn)
+cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+project(
+  cnn
+  VERSION     0.1
+  DESCRIPTION "An Open Convolutional Neural Network Framework in C++ From Scratch"
+  LANGUAGES   CXX C
+)
 
-# include(${PROJECT_SOURCE_DIR}/cmake/lint.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/gflags.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/glog.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/compiler-flags.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake/protobuf.cmake)
+set(cnn_THIRD_PARTY_DIR
+  "${CMAKE_BINARY_DIR}/third_party"
+  CACHE STRING
+  "Directory to save & build downloaded third party libraries"
+)
 
-include_directories(include)
+set(CMAKE_BUILD_TYPE Release)
 
-add_subdirectory(proto)
+include(cmake/paths.cmake) # it will setup CMAKE_MODUEL_PATH
+include(cpplint)
+include(googletest)
 
-add_library(
-    core STATIC
-    src/io.cpp
-    src/rng.cpp
-    # src/array.cpp
-    # src/layer.cpp
-    # src/full_connected_layer.cpp
-    # src/input_layer.cpp
-    # src/network.cpp
-    # src/l2_loss_layer.cpp
-    # src/array_math.cpp
-    # src/optimizer.cpp
-    # src/softmax_layer.cpp
-    # src/log_loss_layer.cpp
-    # src/softmax_with_log_loss_layer.cpp
-    )
-target_link_libraries(
-    core
-    cnn_proto
-    ${GLOG_LIBRARIES}
-    ${GFLAGS_LIBRARIES}
-    )
+enable_testing()
 
-if(UNIX AND NOT APPLE)
-    target_link_libraries(
-        core
-        -pthread
-        )
-endif()
-
-add_subdirectory(test)
-
-add_subdirectory(tools)
-add_subdirectory(examples)
-
+add_subdirectory(cnn)
